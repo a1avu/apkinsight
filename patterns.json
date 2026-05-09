@@ -1,0 +1,582 @@
+{
+  "hardcoded_password": {
+    "patterns": [
+      "(?i)(password|passwd|pwd)\\s*[=:]\\s*[\"'][^\"']{3,}[\"']",
+      "(?i)\\.put\\([\"']password[\"']\\s*,\\s*[\"'][^\"']{3,}[\"']",
+      "(?i)map\\.put\\([^,]+,\\s*[\"'][^\"']{4,}[\"']"
+    ],
+    "cwe": "CWE-259",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "hardcoded_api_key": {
+    "patterns": [
+      "(?i)(api_?key|apikey|api_?secret|access_?key|secret_?key)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
+      "(?i)(token|auth_?token|bearer)\\s*=\\s*[\"'][^\"']{8,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "hardcoded_db_credential": {
+    "patterns": [
+      "(?i)(db_?pass|db_?password|database_?password|db_?user|jdbc.+password)\\s*[=:]\\s*[\"'][^\"']{3,}[\"']"
+    ],
+    "cwe": "CWE-259",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "hardcoded_private_key": {
+    "patterns": [
+      "-----BEGIN (RSA |EC |DSA )?PRIVATE KEY-----",
+      "-----BEGIN PGP PRIVATE KEY BLOCK-----",
+      "(?i)(private_?key|rsa_?key)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']"
+    ],
+    "cwe": "CWE-321",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "hardcoded_jwt_secret": {
+    "patterns": [
+      "(?i)(jwt_?secret|jwtSecret|jwt_?key)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
+      "(?i)Jwts\\.builder\\(\\).*signWith.*[\"'][^\"']{8,}[\"']"
+    ],
+    "cwe": "CWE-321",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "hardcoded_google_credential": {
+    "patterns": [
+      "AIza[0-9A-Za-z\\-_]{35}",
+      "[0-9]+-[0-9A-Za-z_]{32}\\.apps\\.googleusercontent\\.com",
+      "\"type\": \"service_account\"",
+      "ya29\\.[0-9A-Za-z\\-_]+",
+      "(?i)(google_?api_?key|googleApiKey)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']",
+      "(?i)(google_?client_?id|googleClientId)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "aws_credential": {
+    "patterns": [
+      "([^A-Z0-9]|^)(AKIA|A3T|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{12,}",
+      "(?i)aws_?secret_?access_?key\\s*[=:]\\s*[\"'][^\"']{20,}[\"']",
+      "(?i)(aws_?access_?key|awsAccessKey)\\s*[=:]\\s*[\"'][^\"']{16,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "amazon_s3_bucket": {
+    "patterns": [
+      "//s3-[a-z0-9-]+\\.amazonaws\\.com/[a-z0-9._-]+",
+      "//s3\\.amazonaws\\.com/[a-z0-9._-]+",
+      "[a-z0-9.-]+\\.s3-[a-z0-9-]\\.amazonaws\\.com",
+      "[a-z0-9.-]+\\.s3-website[.-](eu|ap|us|ca|sa|cn)",
+      "[a-z0-9.-]+\\.s3\\.amazonaws\\.com",
+      "amzn\\.mws\\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+    ],
+    "cwe": "CWE-200",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "MEDIUM"
+  },
+  "kakao_api_key": {
+    "patterns": [
+      "(?i)(kakao_?api_?key|kakao_?app_?key|kakaoAppKey)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']",
+      "(?i)KakaoSDK\\.init\\([\"'][^\"']{10,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "naver_api_key": {
+    "patterns": [
+      "(?i)(naver_?client_?id|naver_?client_?secret|naverClientId)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "toss_api_key": {
+    "patterns": [
+      "(?i)(toss_?api_?key|tossApiKey|toss_?secret)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']",
+      "test_sk_[a-zA-Z0-9]+",
+      "live_sk_[a-zA-Z0-9]+"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "inicis_credential": {
+    "patterns": [
+      "(?i)(inicis_?key|INIStdPay|iniKey)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "nice_credential": {
+    "patterns": [
+      "(?i)(nice_?site_?code|niceSiteCode|nice_?key)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "firebase_config_exposed": {
+    "patterns": [
+      "https://[a-zA-Z0-9\\-]+\\.firebaseio\\.com",
+      "https://[a-zA-Z0-9\\-]+\\.firebaseapp\\.com",
+      "(?i)(firebaseApiKey|firebase_api_key)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']"
+    ],
+    "cwe": "CWE-200",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "MEDIUM"
+  },
+  "slack_token": {
+    "patterns": [
+      "(xox[p|b|o|a]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32})",
+      "https://hooks\\.slack\\.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "telegram_bot_token": {
+    "patterns": [
+      "[0-9]{8,10}:[a-zA-Z0-9_-]{35}"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "github_token": {
+    "patterns": [
+      "[g|G][i|I][t|T][h|H][u|U][b|B].*[\"'][0-9a-zA-Z]{35,40}[\"']",
+      "([a-zA-Z0-9_-]*:[a-zA-Z0-9_-]+@github\\.com*)$"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "facebook_token": {
+    "patterns": [
+      "EAACEdEose0cBA[0-9A-Za-z]+",
+      "[f|F][a|A][c|C][e|E][b|B][o|O][o|O][k|K](.{0,20})?[\"'][0-9]{13,17}",
+      "[f|F][a|A][c|C][e|E][b|B][o|O][o|O][k|K].*[\"'][0-9a-f]{32}[\"']",
+      "([f|F][a|A][c|C][e|E][b|B][o|O][o|O][k|K]|[f|F][b|B])(.{0,20})?[\"'][0-9a-f]{32}"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "twitter_token": {
+    "patterns": [
+      "[t|T][w|W][i|I][t|T][t|T][e|E][r|R].*[1-9][0-9]+-[0-9a-zA-Z]{40}",
+      "[t|T][w|W][i|I][t|T][t|T][e|E][r|R](.{0,20})?[\"'][0-9a-z]{18,25}",
+      "[t|T][w|W][i|I][t|T][t|T][e|E][r|R].*[\"'][0-9a-zA-Z]{35,44}[\"']",
+      "[t|T][w|W][i|I][t|T][t|T][e|E][r|R](.{0,20})?[\"'][0-9a-z]{35,44}"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "stripe_api_key": {
+    "patterns": [
+      "sk_live_[0-9a-zA-Z]{24}",
+      "rk_live_[0-9a-zA-Z]{24}"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "payment_token": {
+    "patterns": [
+      "access_token\\$production\\$[0-9a-z]{16}\\$[0-9a-f]{32}",
+      "sq0atp-[0-9A-Za-z\\-_]{22}",
+      "sq0csp-[0-9A-Za-z\\-_]{43}",
+      "sk_live_[0-9a-z]{32}"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "service_api_key": {
+    "patterns": [
+      "(?:\\s|=|:|\"|^)AKC[a-zA-Z0-9]{10,}",
+      "(?:\\s|=|:|\"|^)AP[\\dABCDEF][a-zA-Z0-9]{8,}",
+      "key-[0-9a-zA-Z]{32}",
+      "[0-9a-f]{32}-us[0-9]{1,2}",
+      "SK[0-9a-fA-F]{32}",
+      "cloudinary://[0-9]{15}:[0-9A-Za-z]+@[a-z]+",
+      "[h|H][e|E][r|R][o|O][k|K][u|U].*[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}",
+      "BITMOVIN_API_KEY\\s?=\\s?['\"]?.*['\"]?"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "sdk_init_key": {
+    "patterns": [
+      "\\.with(?:AccountId|BeaconKey)\\([\"'].*[\"']\\)",
+      "https?://\\w+(:\\w+)?@sentry\\.io/[0-9]+",
+      "Intercom\\.initialize\\([\"']?\\w+[\"']?,\\s?[\"']?\\w+[\"']?,\\s?[\"']?\\w+[\"']?\\)",
+      "SingularConfig\\([\"']?[\\w._]+[\"']?,\\s?[\"']?[\\w._]+[\"']?\\)",
+      "AdjustConfig\\([\"']?[\\w]+[\"']?,\\s?[\"']?[\\w]+[\"']?(,\\s?[\"']?[\\w]+[\"']?)?\\)",
+      "([a|A]djust)?[C|c]onfig\\.setAppSecret\\(.*\\)",
+      "setAccessToken\\(\\w+.MC_ACCESS_TOKEN\\)",
+      "AgentConfiguration\\.builder\\(\\)(\\s*)?([\\.\\w\\(\\)\\s]+)\\.withAppKey\\(.*?\\)",
+      "AppCenter\\.(configure|start)\\(.*\\)"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "generic_api_key": {
+    "patterns": [
+      "[a|A][p|P][i|I][_]?[k|K][e|E][y|Y].*[\"'][0-9a-zA-Z]{32,45}[\"']",
+      "[s|S][e|E][c|C][r|R][e|E][t|T].*[\"'][0-9a-zA-Z]{32,45}[\"']",
+      "basic\\s[a-zA-Z0-9_\\-:\\.=]+",
+      "bearer\\s[a-zA-Z0-9_\\-:\\.=]+",
+      "(?<=://)[a-zA-Z0-9]+:[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-zA-Z]+"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "MEDIUM"
+  },
+  "sharedprefs_password": {
+    "patterns": [
+      "(?i)putString\\([\"']password[\"']",
+      "(?i)putString\\([\"']passwd[\"']",
+      "(?i)putString\\([\"']pwd[\"']",
+      "(?i)putString\\([\"']pin[\"']",
+      "(?i)putString\\([\"']secret[\"']"
+    ],
+    "cwe": "CWE-312",
+    "owasp": "M9: Insecure Data Storage",
+    "severity": "HIGH"
+  },
+  "sharedprefs_sensitive": {
+    "patterns": [
+      "(?i)putString\\([\"']token[\"']",
+      "(?i)putString\\([\"']auth[\"']",
+      "(?i)putString\\([\"']credit_?card[\"']",
+      "(?i)putString\\([\"']ssn[\"']",
+      "(?i)putString\\([\"']jumin[\"']",
+      "(?i)putString\\([\"']phone[\"']",
+      "(?i)putString\\([\"']email[\"']",
+      "(?i)putString\\([\"']access_?token[\"']",
+      "(?i)putString\\([\"']refresh_?token[\"']"
+    ],
+    "cwe": "CWE-312",
+    "owasp": "M9: Insecure Data Storage",
+    "severity": "MEDIUM"
+  },
+  "sharedprefs_jumin": {
+    "patterns": [
+      "(?i)putString\\([\"']jumin[\"']",
+      "(?i)putString\\([\"']resident[\"']",
+      "(?i)(주민등록번호|주민번호)"
+    ],
+    "cwe": "CWE-359",
+    "owasp": "M9: Insecure Data Storage",
+    "severity": "HIGH"
+  },
+  "sqlite_plaintext": {
+    "patterns": [
+      "(?i)execSQL\\(.*(password|passwd|token|secret)",
+      "(?i)ContentValues.*(password|passwd|token|secret)"
+    ],
+    "cwe": "CWE-312",
+    "owasp": "M9: Insecure Data Storage",
+    "severity": "HIGH"
+  },
+  "external_storage_sensitive": {
+    "patterns": [
+      "(?i)getExternalStorage",
+      "(?i)Environment\\.getExternalFilesDir",
+      "(?i)openFileOutput.*MODE_WORLD_READABLE",
+      "(?i)openFileOutput.*MODE_WORLD_WRITEABLE"
+    ],
+    "cwe": "CWE-312",
+    "owasp": "M9: Insecure Data Storage",
+    "severity": "MEDIUM"
+  },
+  "clipboard_sensitive": {
+    "patterns": [
+      "(?i)ClipboardManager.*password",
+      "(?i)ClipboardManager.*token",
+      "(?i)setPrimaryClip.*password"
+    ],
+    "cwe": "CWE-312",
+    "owasp": "M9: Insecure Data Storage",
+    "severity": "MEDIUM"
+  },
+  "temp_file_sensitive": {
+    "patterns": [
+      "(?i)createTempFile\\(.*password",
+      "(?i)File\\.createTempFile\\("
+    ],
+    "cwe": "CWE-377",
+    "owasp": "M9: Insecure Data Storage",
+    "severity": "MEDIUM"
+  },
+  "log_sensitive_info": {
+    "patterns": [
+      "(?i)Log\\.[dveiw]\\(.*password",
+      "(?i)Log\\.[dveiw]\\(.*passwd",
+      "(?i)Log\\.[dveiw]\\(.*token",
+      "(?i)Log\\.[dveiw]\\(.*secret",
+      "(?i)Log\\.[dveiw]\\(.*credit",
+      "(?i)Log\\.[dveiw]\\(.*ssn",
+      "(?i)Log\\.[dveiw]\\(.*jumin",
+      "(?i)System\\.out\\.print.*password",
+      "(?i)printStackTrace\\(\\)"
+    ],
+    "cwe": "CWE-532",
+    "owasp": "M9: Insecure Data Storage",
+    "severity": "MEDIUM"
+  },
+  "debug_stacktrace": {
+      "patterns": [
+        "(?i)printStackTrace\\(\\)"
+      ],
+      "cwe": "CWE-532",
+      "owasp": "M9: Insecure Data Storage",
+      "severity": "LOW"
+  },
+  "korean_phone_hardcoded": {
+    "patterns": [
+      "(?i)(phone|tel|mobile)\\s*[=:]\\s*[\"']0[1789][0-9\\-]{8,}[\"']"
+    ],
+    "cwe": "CWE-359",
+    "owasp": "M9: Insecure Data Storage",
+    "severity": "MEDIUM"
+  },
+  "base64_credential": {
+    "patterns": [
+      "(?i)(password|secret|token).*Base64\\.(encode|decode)",
+      "(?i)Base64\\.(encode|decode).*password"
+    ],
+    "cwe": "CWE-261",
+    "owasp": "M10: Insufficient Cryptography",
+    "severity": "MEDIUM"
+  },
+  "ssl_bypass": {
+    "patterns": [
+      "(?i)TrustAllCerts",
+      "(?i)ALLOW_ALL_HOSTNAME_VERIFIER",
+      "(?i)setHostnameVerifier.*ALLOW_ALL",
+      "(?i)onReceivedSslError.*proceed",
+      "(?i)handler\\.proceed\\(\\)",
+      "(?i)NullHostNameVerifier",
+      "(?i)AcceptAllTrustManager"
+    ],
+    "cwe": "CWE-295",
+    "owasp": "M5: Insecure Communication",
+    "severity": "HIGH"
+  },
+  "http_plaintext_url": {
+    "patterns": [
+      "http://(?!schemas\\.android\\.com)(?!www\\.w3\\.org)(?!xmlpull\\.org)[a-zA-Z0-9]"
+    ],
+    "cwe": "CWE-319",
+    "owasp": "M5: Insecure Communication",
+    "severity": "MEDIUM"
+  },
+  "webview_ssl_ignore": {
+    "patterns": [
+      "(?i)onReceivedSslError"
+    ],
+    "cwe": "CWE-295",
+    "owasp": "M5: Insecure Communication",
+    "severity": "HIGH"
+  },
+  "socket_plaintext": {
+    "patterns": [
+      "(?i)new Socket\\(",
+      "(?i)ServerSocket\\("
+    ],
+    "cwe": "CWE-319",
+    "owasp": "M5: Insecure Communication",
+    "severity": "LOW"
+  },
+  "url_with_credentials": {
+    "patterns": [
+      "[a-zA-Z]{3,10}://[^\\s:@]{3,20}:[^\\s:@]{3,20}@.{1,100}[\"'\\s]"
+    ],
+    "cwe": "CWE-312",
+    "owasp": "M5: Insecure Communication",
+    "severity": "HIGH"
+  },
+  "webview_javascript_enabled": {
+    "patterns": [
+      "(?i)setJavaScriptEnabled\\(true\\)"
+    ],
+    "cwe": "CWE-79",
+    "owasp": "M1: Improper Platform Usage",
+    "severity": "MEDIUM"
+  },
+  "webview_content_access": {
+    "patterns": [
+      "(?i)setAllowContentAccess\\(true\\)"
+    ],
+    "cwe": "CWE-200",
+    "owasp": "M1: Improper Platform Usage",
+    "severity": "MEDIUM"
+  },
+  "webview_load_url_intent": {
+    "patterns": [
+      "(?i)loadUrl\\(.*getIntent",
+      "(?i)loadUrl\\(.*getStringExtra",
+      "(?i)loadUrl\\(.*getData\\(\\)"
+    ],
+    "cwe": "CWE-79",
+    "owasp": "M1: Improper Platform Usage",
+    "severity": "HIGH"
+  },
+  "webview_geolocation": {
+    "patterns": [
+      "(?i)setGeolocationEnabled\\(true\\)"
+    ],
+    "cwe": "CWE-200",
+    "owasp": "M1: Improper Platform Usage",
+    "severity": "MEDIUM"
+  },
+  "client_side_auth": {
+    "patterns": [
+      "(?i)(isAdmin|isLoggedIn|isAuthenticated)\\s*=\\s*true",
+      "(?i)sharedPreferences.*isAdmin.*true"
+    ],
+    "cwe": "CWE-602",
+    "owasp": "M3: Insecure Authentication",
+    "severity": "HIGH"
+  },
+  "hardcoded_otp": {
+    "patterns": [
+      "(?i)(otp|one_?time_?password)\\s*[=:]\\s*[\"'][0-9]{4,8}[\"']",
+      "(?i)(otp|verificationCode)\\s*==\\s*[\"'][0-9]{4,8}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M3: Insecure Authentication",
+    "severity": "HIGH"
+  },
+  "insecure_token_comparison": {
+    "patterns": [
+      "(?i)(token|apiKey)\\.equals\\(",
+      "(?i)==\\s*[\"'][a-zA-Z0-9+/]{20,}[\"']"
+    ],
+    "cwe": "CWE-697",
+    "owasp": "M3: Insecure Authentication",
+    "severity": "MEDIUM"
+  },
+  "intent_scheme_url": {
+    "patterns": [
+      "(?i)intent://",
+      "(?i)javascript://"
+    ],
+    "cwe": "CWE-601",
+    "owasp": "M4: Insufficient Input/Output Validation",
+    "severity": "HIGH"
+  },
+  "path_traversal": {
+    "patterns": [
+      "(?i)new File\\(.*getIntent",
+      "(?i)new File\\(.*getStringExtra",
+      "(?i)openFileInput\\(.*getStringExtra"
+    ],
+    "cwe": "CWE-22",
+    "owasp": "M4: Insufficient Input/Output Validation",
+    "severity": "HIGH"
+  },
+  "implicit_intent_data": {
+    "patterns": [
+      "(?i)getIntent\\(\\)\\.getData\\(\\)",
+      "(?i)getIntent\\(\\)\\.getStringExtra\\("
+    ],
+    "cwe": "CWE-927",
+    "owasp": "M1: Improper Platform Usage",
+    "severity": "MEDIUM"
+  },
+  "pending_intent_mutable": {
+    "patterns": [
+      "(?i)PendingIntent\\.(getActivity|getBroadcast|getService).*FLAG_MUTABLE"
+    ],
+    "cwe": "CWE-927",
+    "owasp": "M1: Improper Platform Usage",
+    "severity": "MEDIUM"
+  },
+  "insecure_content_provider": {
+    "patterns": [
+      "(?i)query\\(.*selection.*\\+"
+    ],
+    "cwe": "CWE-200",
+    "owasp": "M1: Improper Platform Usage",
+    "severity": "MEDIUM"
+  },
+  "dynamic_broadcast_receiver": {
+    "patterns": [
+      "(?i)registerReceiver\\("
+    ],
+    "cwe": "CWE-925",
+    "owasp": "M1: Improper Platform Usage",
+    "severity": "LOW"
+  },
+  "implicit_intent_sensitive": {
+    "patterns": [
+      "(?i)new Intent\\(\\).*setAction",
+      "(?i)sendBroadcast\\(new Intent\\("
+    ],
+    "cwe": "CWE-927",
+    "owasp": "M1: Improper Platform Usage",
+    "severity": "MEDIUM"
+  },
+  "reflection_usage": {
+    "patterns": [
+      "(?i)Class\\.forName\\(",
+      "(?i)getDeclaredMethod\\(",
+      "(?i)getDeclaredField\\("
+    ],
+    "cwe": "CWE-470",
+    "owasp": "M1: Improper Platform Usage",
+    "severity": "LOW"
+  },
+  "dynamic_code_loading": {
+    "patterns": [
+      "(?i)DexClassLoader\\(",
+      "(?i)PathClassLoader\\(",
+      "(?i)loadClass\\("
+    ],
+    "cwe": "CWE-829",
+    "owasp": "M8: Security Misconfiguration",
+    "severity": "HIGH"
+  },
+  "native_method": {
+    "patterns": [
+      "\\bnative\\b.*\\(",
+      "System\\.loadLibrary\\(",
+      "System\\.load\\("
+    ],
+    "cwe": "CWE-111",
+    "owasp": "M7: Insufficient Binary Protections",
+    "severity": "LOW"
+  },
+  "network_info_exposed": {
+    "patterns": [
+      "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])",
+      "(([0-9A-Fa-f]{2}[:]){5}[0-9A-Fa-f]{2}|([0-9A-Fa-f]{2}[-]){5}[0-9A-Fa-f]{2}|([0-9A-Fa-f]{4}[\\.]){2}[0-9A-Fa-f]{4})$"
+    ],
+    "cwe": "CWE-200",
+    "owasp": "M8: Security Misconfiguration",
+    "severity": "LOW"
+  },
+  "endpoint_disclosure": {
+    "patterns": [
+      "(?:\"|')(((?:[a-zA-Z]{1,10}:\\/\\/|\\/\\/)[^\"'\\/]{1,}\\.[a-zA-Z]{2,}[^\"']{0,})|((?:\\/|\\.\\.\\/|\\.\\/)[ ^\"'><,;| *()(%%$^\\/\\\\\\[\\]][^\"'><,;|()]{1,})|([a-zA-Z0-9_\\-\\/]{1,}\\/[a-zA-Z0-9_\\-\\/]{1,}\\.(?:[a-zA-Z]{1,4}|action)(?:[\\?|#][^\"|']{0,}|))|([a-zA-Z0-9_\\-\\/]{1,}\\/[a-zA-Z0-9_\\-\\/]{3,}(?:[\\?|#][^\"|']{0,}|))|([a-zA-Z0-9_\\-]{1,}\\.(?:php|asp|aspx|jsp|json|action|html|js|txt|xml)(?:[\\?|#][^\"|']{0,}|)))(?:\"|')"
+    ],
+    "cwe": "CWE-200",
+    "owasp": "M8: Security Misconfiguration",
+    "severity": "LOW"
+  }
+}

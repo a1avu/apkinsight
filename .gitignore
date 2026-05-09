@@ -1,0 +1,5 @@
+db_data/
+input/
+output/
+__pycache__/
+*.pyc

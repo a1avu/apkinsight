@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:17
+    container_name: apkinsight-db
+    environment:
+      POSTGRES_DB: apkinsight
+      POSTGRES_USER: apkinsight
+      POSTGRES_PASSWORD: apkinsight123
+      TZ: Asia/Seoul
+      PGTZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: apkinsight-app
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: apkinsight
+      DB_USER: apkinsight
+      DB_PASSWORD: apkinsight123
+      TZ: Asia/Seoul
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./input:/input
+      - ./output:/output
+      - ./:/app
+    restart: unless-stopped
+
+    # 🔥 폴더 자동 생성 핵심
+    command: >
+      sh -c "
+      mkdir -p /input /output /app &&
+      python3 analyze.py
+      "

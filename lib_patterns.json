@@ -1,0 +1,223 @@
+{
+  "known_maven_coords": {
+    "play-services-location":             ["com.google.android.gms",  "play-services-location"],
+    "play-services-base":                 ["com.google.android.gms",  "play-services-base"],
+    "play-services-basement":             ["com.google.android.gms",  "play-services-basement"],
+    "play-services-tasks":                ["com.google.android.gms",  "play-services-tasks"],
+    "play-services-auth":                 ["com.google.android.gms",  "play-services-auth"],
+    "play-services-auth-base":            ["com.google.android.gms",  "play-services-auth-base"],
+    "play-services-auth-api-phone":       ["com.google.android.gms",  "play-services-auth-api-phone"],
+    "play-services-ads":                  ["com.google.android.gms",  "play-services-ads"],
+    "play-services-ads-base":             ["com.google.android.gms",  "play-services-ads-base"],
+    "play-services-ads-lite":             ["com.google.android.gms",  "play-services-ads-lite"],
+    "play-services-ads-identifier":       ["com.google.android.gms",  "play-services-ads-identifier"],
+    "play-services-appset":               ["com.google.android.gms",  "play-services-appset"],
+    "play-services-cast":                 ["com.google.android.gms",  "play-services-cast"],
+    "play-services-cast-framework":       ["com.google.android.gms",  "play-services-cast-framework"],
+    "play-services-cloud-messaging":      ["com.google.android.gms",  "play-services-cloud-messaging"],
+    "play-services-fido":                 ["com.google.android.gms",  "play-services-fido"],
+    "play-services-flags":                ["com.google.android.gms",  "play-services-flags"],
+    "play-services-measurement":          ["com.google.android.gms",  "play-services-measurement"],
+    "play-services-measurement-api":      ["com.google.android.gms",  "play-services-measurement-api"],
+    "play-services-measurement-base":     ["com.google.android.gms",  "play-services-measurement-base"],
+    "play-services-measurement-impl":     ["com.google.android.gms",  "play-services-measurement-impl"],
+    "play-services-measurement-sdk":      ["com.google.android.gms",  "play-services-measurement-sdk"],
+    "play-services-measurement-sdk-api":  ["com.google.android.gms",  "play-services-measurement-sdk-api"],
+    "play-services-pal":                  ["com.google.android.gms",  "play-services-pal"],
+    "play-services-places-placereport":   ["com.google.android.gms",  "play-services-places-placereport"],
+    "play-services-stats":                ["com.google.android.gms",  "play-services-stats"],
+    "firebase-analytics":                 ["com.google.firebase",     "firebase-analytics"],
+    "firebase-analytics-ktx":             ["com.google.firebase",     "firebase-analytics-ktx"],
+    "firebase-annotations":               ["com.google.firebase",     "firebase-annotations"],
+    "firebase-auth":                      ["com.google.firebase",     "firebase-auth"],
+    "firebase-auth-interop":              ["com.google.firebase",     "firebase-auth-interop"],
+    "firebase-common":                    ["com.google.firebase",     "firebase-common"],
+    "firebase-common-ktx":                ["com.google.firebase",     "firebase-common-ktx"],
+    "firebase-components":                ["com.google.firebase",     "firebase-components"],
+    "firebase-config":                    ["com.google.firebase",     "firebase-config"],
+    "firebase-crashlytics":               ["com.google.firebase",     "firebase-crashlytics"],
+    "firebase-database":                  ["com.google.firebase",     "firebase-database"],
+    "firebase-database-collection":       ["com.google.firebase",     "firebase-database-collection"],
+    "firebase-encoders":                  ["com.google.firebase",     "firebase-encoders"],
+    "firebase-encoders-proto":            ["com.google.firebase",     "firebase-encoders-proto"],
+    "firebase-iid":                       ["com.google.firebase",     "firebase-iid"],
+    "firebase-iid-interop":               ["com.google.firebase",     "firebase-iid-interop"],
+    "firebase-installations":             ["com.google.firebase",     "firebase-installations"],
+    "firebase-measurement-connector":     ["com.google.firebase",     "firebase-measurement-connector"],
+    "firebase-messaging":                 ["com.google.firebase",     "firebase-messaging"],
+    "firebase-perf":                      ["com.google.firebase",     "firebase-perf"],
+    "firebase-storage":                   ["com.google.firebase",     "firebase-storage"],
+    "material":                           ["com.google.android.material", "material"],
+    "billing":                            ["com.android.billingclient",   "billing"],
+    "billing-ktx":                        ["com.android.billingclient",   "billing-ktx"],
+    "googleid":                           ["com.google.android.libraries.identity.googleid", "googleid"],
+    "integrity":                          ["com.google.android.play",     "integrity"],
+    "recaptcha":                          ["com.google.android.recaptcha","recaptcha"],
+    "interactivemedia":                   ["com.google.ads.interactivemedia.v3", "interactivemedia"],
+    "user-messaging-platform":            ["com.google.android.ump",      "user-messaging-platform"],
+    "HttpMime":                           ["org.apache.httpcomponents",    "httpmime"],
+    "retrofit":                           ["com.squareup.retrofit2",       "retrofit"],
+    "converter-gson":                     ["com.squareup.retrofit2",       "converter-gson"],
+    "adapter-rxjava3":                    ["com.squareup.retrofit2",       "adapter-rxjava3"],
+    "gson":                               ["com.google.code.gson",         "gson"],
+    "protobuf-javalite":                  ["com.google.protobuf",          "protobuf-javalite"],
+    "protobuf-lite":                      ["com.google.protobuf",          "protobuf-lite"],
+    "glide":                              ["com.github.bumptech.glide",    "glide"],
+    "glide-annotation":                   ["com.github.bumptech.glide",    "annotation"],
+    "lottie":                             ["com.airbnb.android",           "lottie"],
+    "lottie-compose":                     ["com.airbnb.android",           "lottie-compose"],
+    "gpuimage":                           ["jp.co.cyberagent.android",     "gpuimage"],
+    "rxandroid":                          ["io.reactivex.rxjava3",         "rxandroid"],
+    "rxjava":                             ["io.reactivex.rxjava3",         "rxjava"],
+    "timber":                             ["com.jakewharton.timber",       "timber"],
+    "utilcode":                           ["com.blankj",                   "utilcode"],
+    "soloader":                           ["com.facebook.soloader",        "soloader"],
+    "permissionx":                        ["com.guolindev.permissionx",    "permissionx"],
+    "leakcanary-android":                 ["com.squareup.leakcanary",      "leakcanary-android"],
+    "chucker":                            ["com.github.chuckerteam.chucker","library"]
+  },
+
+  "artifact_overrides": {
+    "coroutines_android":  ["org.jetbrains.kotlinx", "kotlinx-coroutines-android"],
+    "coroutines_core":     ["org.jetbrains.kotlinx", "kotlinx-coroutines-core"],
+    "coroutines-android":  ["org.jetbrains.kotlinx", "kotlinx-coroutines-android"],
+    "coroutines-core":     ["org.jetbrains.kotlinx", "kotlinx-coroutines-core"],
+    "room-ktx":            ["androidx.room",          "room-ktx"],
+    "room-runtime":        ["androidx.room",          "room-runtime"],
+    "versionedparcelable": ["androidx.versionedparcelable", "versionedparcelable"]
+  },
+
+  "group_overrides": {
+    "kotlinx":              "org.jetbrains.kotlinx",
+    "androidxedparcelable": "androidx.versionedparcelable"
+  },
+
+  "artifact_rename": {
+    "coroutines_android":       "kotlinx-coroutines-android",
+    "coroutines_core":          "kotlinx-coroutines-core",
+    "coroutines_play_services": "kotlinx-coroutines-play-services",
+    "coroutines_reactive":      "kotlinx-coroutines-reactive",
+    "coroutines_rx2":           "kotlinx-coroutines-rx2",
+    "coroutines_rx3":           "kotlinx-coroutines-rx3",
+    "coroutines_test":          "kotlinx-coroutines-test",
+    "coroutines_debug":         "kotlinx-coroutines-debug",
+    "coroutines_slf4j":         "kotlinx-coroutines-slf4j",
+    "serialization_core":       "kotlinx-serialization-core",
+    "serialization_json":       "kotlinx-serialization-json",
+    "serialization_json_okio":  "kotlinx-serialization-json-okio",
+    "serialization_protobuf":   "kotlinx-serialization-protobuf",
+    "serialization_cbor":       "kotlinx-serialization-cbor"
+  },
+
+  "ua_lib_map": {
+    "okhttp":       ["com.squareup.okhttp3",          "okhttp"],
+    "okhttp3":      ["com.squareup.okhttp3",          "okhttp"],
+    "retrofit":     ["com.squareup.retrofit2",        "retrofit"],
+    "ExoPlayerLib": ["com.google.android.exoplayer2", "exoplayer2"],
+    "glide":        ["com.github.bumptech.glide",     "glide"],
+    "Glide":        ["com.github.bumptech.glide",     "glide"],
+    "GlideModule":  ["com.github.bumptech.glide",     "glide"],
+    "picasso":      ["com.squareup.picasso",          "picasso"],
+    "Timber":       ["com.jakewharton.timber",        "timber"],
+    "timber":       ["com.jakewharton.timber",        "timber"]
+  },
+
+  "dex_class_presence": [
+    {"prefix": "Lretrofit2/converter/gson/",  "anchor": "Lretrofit2/converter/gson/GsonConverterFactory;", "group": "com.squareup.retrofit2",        "artifact": "converter-gson"},
+    {"prefix": "Lretrofit2/",                 "anchor": "Lretrofit2/Retrofit;",                            "group": "com.squareup.retrofit2",        "artifact": "retrofit"},
+    {"prefix": "Lcom/google/gson/",           "anchor": "Lcom/google/gson/Gson;",                          "group": "com.google.code.gson",          "artifact": "gson"},
+    {"prefix": "Lcom/google/protobuf/",       "anchor": null,                                              "group": "com.google.protobuf",           "artifact": "protobuf-javalite"},
+    {"prefix": "Lcom/bumptech/glide/",        "anchor": "Lcom/bumptech/glide/Glide;",                      "group": "com.github.bumptech.glide",     "artifact": "glide"},
+    {"prefix": "Lcom/airbnb/lottie/",         "anchor": "Lcom/airbnb/lottie/LottieAnimationView;",         "group": "com.airbnb.android",            "artifact": "lottie"},
+    {"prefix": "Ljp/co/cyberagent/android/gpuimage/", "anchor": null,                                      "group": "jp.co.cyberagent.android",      "artifact": "gpuimage"},
+    {"prefix": "Lio/reactivex/rxjava3/android/", "anchor": "Lio/reactivex/rxjava3/android/schedulers/AndroidSchedulers;", "group": "io.reactivex.rxjava3", "artifact": "rxandroid"},
+    {"prefix": "Lio/reactivex/rxjava3/",      "anchor": "Lio/reactivex/rxjava3/core/Observable;",          "group": "io.reactivex.rxjava3",          "artifact": "rxjava"},
+    {"prefix": "Ltimber/log/",                "anchor": "Ltimber/log/Timber;",                             "group": "com.jakewharton.timber",        "artifact": "timber"},
+    {"prefix": "Lcom/blankj/utilcode/",       "anchor": "Lcom/blankj/utilcode/util/Utils;",                "group": "com.blankj",                    "artifact": "utilcode"},
+    {"prefix": "Lcom/facebook/soloader/",     "anchor": "Lcom/facebook/soloader/SoLoader;",                "group": "com.facebook.soloader",         "artifact": "soloader"},
+    {"prefix": "Lcom/permissionx/guolindev/", "anchor": "Lcom/permissionx/guolindev/PermissionX;",         "group": "com.guolindev.permissionx",     "artifact": "permissionx"}
+  ],
+
+  "metainf_extra_paths": [
+    {"pattern": "META-INF/com\\.squareup\\.retrofit2_retrofit\\.version",           "group": "com.squareup.retrofit2",        "artifact": "retrofit"},
+    {"pattern": "META-INF/com\\.squareup\\.retrofit2_converter-gson\\.version",     "group": "com.squareup.retrofit2",        "artifact": "converter-gson"},
+    {"pattern": "META-INF/com\\.google\\.code\\.gson_gson\\.version",               "group": "com.google.code.gson",          "artifact": "gson"},
+    {"pattern": "META-INF/com\\.google\\.protobuf_protobuf-javalite\\.version",     "group": "com.google.protobuf",           "artifact": "protobuf-javalite"},
+    {"pattern": "META-INF/com\\.github\\.bumptech\\.glide_glide\\.version",         "group": "com.github.bumptech.glide",     "artifact": "glide"},
+    {"pattern": "META-INF/com\\.airbnb\\.android_lottie\\.version",                 "group": "com.airbnb.android",            "artifact": "lottie"},
+    {"pattern": "META-INF/jp\\.co\\.cyberagent\\.android_gpuimage\\.version",       "group": "jp.co.cyberagent.android",      "artifact": "gpuimage"},
+    {"pattern": "META-INF/io\\.reactivex\\.rxjava3_rxandroid\\.version",            "group": "io.reactivex.rxjava3",          "artifact": "rxandroid"},
+    {"pattern": "META-INF/io\\.reactivex\\.rxjava3_rxjava\\.version",               "group": "io.reactivex.rxjava3",          "artifact": "rxjava"},
+    {"pattern": "META-INF/com\\.jakewharton\\.timber_timber\\.version",             "group": "com.jakewharton.timber",        "artifact": "timber"},
+    {"pattern": "META-INF/com\\.blankj_utilcode\\.version",                         "group": "com.blankj",                    "artifact": "utilcode"},
+    {"pattern": "META-INF/com\\.facebook\\.soloader_soloader\\.version",            "group": "com.facebook.soloader",         "artifact": "soloader"},
+    {"pattern": "META-INF/com\\.guolindev\\.permissionx_permissionx\\.version",     "group": "com.guolindev.permissionx",     "artifact": "permissionx"},
+    {"pattern": "META-INF/com\\.squareup\\.leakcanary_leakcanary-android\\.version","group": "com.squareup.leakcanary",       "artifact": "leakcanary-android"},
+    {"pattern": "META-INF/com\\.github\\.chuckerteam\\.chucker_library\\.version",  "group": "com.github.chuckerteam.chucker","artifact": "library"}
+  ],
+
+  "maven_pom_groups": {
+    "com.squareup.retrofit2":         ["retrofit", "converter-gson", "adapter-rxjava3"],
+    "com.google.code.gson":           ["gson"],
+    "com.google.protobuf":            ["protobuf-javalite", "protobuf-lite"],
+    "com.github.bumptech.glide":      ["glide"],
+    "com.airbnb.android":             ["lottie"],
+    "jp.co.cyberagent.android":       ["gpuimage"],
+    "io.reactivex.rxjava3":           ["rxandroid", "rxjava"],
+    "com.jakewharton.timber":         ["timber"],
+    "com.blankj":                     ["utilcode"],
+    "com.facebook.soloader":          ["soloader"],
+    "com.guolindev.permissionx":      ["permissionx"],
+    "com.squareup.leakcanary":        ["leakcanary-android"],
+    "com.github.chuckerteam.chucker": ["library"]
+  },
+
+  "asset_version_patterns": [
+    "sdk[_\\-]?version[\"']?\\s*[:=]\\s*[\"']?(\\d+\\.\\d+[\\.\\d]*)",
+    "\"version\"\\s*:\\s*\"(\\d+\\.\\d+[\\.\\d\\-\\w]*)\"",
+    "(?m)^version\\s*=\\s*(\\d+\\.\\d+[\\.\\d]*)$"
+  ],
+
+  "so_noise_keywords": [
+    "clang", "lld", "llvm", "gcc", "android", "linker",
+    "ndk", "compiler", "toolchain", "assembler", "binutils"
+  ],
+
+  "so_general_skip": [
+    "libunity", "libil2cpp", "libmain", "lib_burst_generated",
+    "libavcodec", "libavformat", "libavutil"
+  ],
+
+  "so_known_libs": [
+    {
+      "so_pattern": "libjpeg-turbo",
+      "ver_pattern": "libjpeg-turbo version (\\d+\\.\\d+\\.\\d+)",
+      "group": "org.libjpeg-turbo",
+      "artifact": "libjpeg-turbo"
+    },
+    {
+      "so_pattern": "libjingle|libwebrtc",
+      "ver_pattern": "WebM Project (?:VP8|VP9) (?:Encoder|Decoder) v(\\d+\\.\\d+\\.\\d+(?:-\\w+)?)",
+      "group": "org.webmproject",
+      "artifact": "libvpx"
+    },
+    {
+      "so_pattern": "libavcodec",
+      "ver_pattern": "Lavc(\\d+\\.\\d+\\.\\d+)",
+      "group": "org.ffmpeg",
+      "artifact": "ffmpeg-avcodec"
+    },
+    {
+      "so_pattern": "libavformat",
+      "ver_pattern": "Lavf(\\d+\\.\\d+\\.\\d+)",
+      "group": "org.ffmpeg",
+      "artifact": "ffmpeg-avformat"
+    },
+    {
+      "so_pattern": "libavutil",
+      "ver_pattern": "Lavu(\\d+\\.\\d+\\.\\d+)",
+      "group": "org.ffmpeg",
+      "artifact": "ffmpeg-avutil"
+    }
+  ]
+}
