@@ -1,0 +1,390 @@
+/* ================================================
+   dark-mode.css — APKInsight 다크 모드
+   html.dark-mode 클래스로 전환
+   ================================================ */
+
+/* ── 색상 변수 ── */
+html.dark-mode {
+  --c-bg:      #121212;
+  --c-card:    #1e1e2e;
+  --c-surface: #252535;
+  --c-raised:  #2a2a3e;
+  --c-nav:     #16161f;
+  --c-border:  #2d2d42;
+  --c-border-s:#22223a;
+  --c-t1: #e2e8f0;
+  --c-t2: #c9d5e0;
+  --c-t3: #94a3b8;
+  --c-t4: #64748b;
+  --c-t5: #475569;
+  --c-blue:    #60a5fa;
+  --c-blue-bg: rgba(59,130,246,.12);
+  --c-blue-bd: rgba(96,165,250,.3);
+}
+
+/* ── Body ── */
+html.dark-mode body {
+  background: #121212 !important;
+  color: #c9d5e0 !important;
+}
+
+/* ── Scrollbar ── */
+html.dark-mode ::-webkit-scrollbar-track { background: #1a1a2a !important; }
+html.dark-mode ::-webkit-scrollbar-thumb { background: #3d3d56 !important; }
+
+/* ── Navbar ── */
+html.dark-mode nav {
+  background: #16161f !important;
+  border-bottom-color: #2d2d42 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.5) !important;
+}
+html.dark-mode nav span { color: #e2e8f0 !important; }
+/* brand blue 유지 */
+html.dark-mode nav span[style*="color:#1d4ed8"] { color: #60a5fa !important; }
+html.dark-mode nav input {
+  background: #252535 !important;
+  border-color: #2d2d42 !important;
+  color: #c9d5e0 !important;
+}
+html.dark-mode nav input::placeholder { color: #475569 !important; }
+
+/* ── Nav links ── */
+html.dark-mode .nav-link         { color: #94a3b8 !important; }
+html.dark-mode .nav-link:hover   { background: #252535 !important; color: #e2e8f0 !important; }
+html.dark-mode .nav-link.active  { background: rgba(59,130,246,.12) !important; color: #60a5fa !important; }
+
+/* ── Cards ── */
+html.dark-mode .card {
+  background: #1e1e2e !important;
+  border-color: #2d2d42 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.25) !important;
+}
+
+/* ── Buttons ── */
+html.dark-mode .btn-soft {
+  background: #252535 !important;
+  color: #94a3b8 !important;
+  border-color: #2d2d42 !important;
+}
+html.dark-mode .btn-soft:hover { background: #2a2a3e !important; border-color: #475569 !important; }
+html.dark-mode .btn-danger-soft,
+html.dark-mode .btn-danger {
+  background: rgba(220,38,38,.12) !important;
+  color: #f87171 !important;
+  border-color: rgba(220,38,38,.3) !important;
+}
+html.dark-mode .btn-danger-soft:hover,
+html.dark-mode .btn-danger:hover { background: rgba(220,38,38,.18) !important; }
+
+/* ── Form controls ── */
+html.dark-mode .form-select,
+html.dark-mode .form-input {
+  background: #252535 !important;
+  border-color: #2d2d42 !important;
+  color: #c9d5e0 !important;
+}
+html.dark-mode .form-input::placeholder { color: #475569 !important; }
+html.dark-mode .form-select:focus,
+html.dark-mode .form-input:focus { border-color: #60a5fa !important; box-shadow: 0 0 0 3px rgba(96,165,250,.15) !important; }
+html.dark-mode .search-input {
+  background: #252535 !important;
+  border-color: #2d2d42 !important;
+  color: #c9d5e0 !important;
+}
+html.dark-mode .search-input:focus { border-color: #60a5fa !important; }
+
+/* ── Section header ── */
+html.dark-mode .sec-header { color: #64748b !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
+
+/* ── Tables ── */
+html.dark-mode thead tr { background: #252535 !important; }
+html.dark-mode .tbl-th  { color: #64748b !important; background: #252535 !important; border-bottom-color: rgba(255,255,255,0.08) !important; }
+html.dark-mode .tbl-td  { border-bottom: none !important; color: #94a3b8 !important; }
+html.dark-mode .tbl-row:nth-child(even) td { background-color: rgba(255,255,255,0.025) !important; }
+html.dark-mode .tbl-row:hover td { background: rgba(255,255,255,.05) !important; }
+
+/* ── Badges (심각도 색상 유지, 어둡게 조정) ── */
+html.dark-mode .badge-critical { background: rgba(153,27,27,.25) !important; color: #fca5a5 !important; border-color: rgba(220,38,38,.35) !important; }
+html.dark-mode .badge-high     { background: rgba(194,65,12,.2) !important;  color: #fb923c !important; border-color: rgba(234,88,12,.35) !important; }
+html.dark-mode .badge-medium   { background: rgba(146,64,14,.2) !important;  color: #fbbf24 !important; border-color: rgba(202,138,4,.35) !important; }
+html.dark-mode .badge-low      { background: rgba(22,101,52,.2) !important;  color: #4ade80 !important; border-color: rgba(22,163,74,.35) !important; }
+html.dark-mode .badge-info     { background: rgba(7,89,133,.2) !important;   color: #38bdf8 !important; border-color: rgba(14,165,233,.35) !important; }
+html.dark-mode .badge-neutral  { background: #252535 !important; color: #94a3b8 !important; }
+
+/* ================================================================
+   00 — 업로드 스캔
+   ================================================================ */
+html.dark-mode .drop-zone { background: #252535 !important; border-color: #2d2d42 !important; }
+html.dark-mode .drop-zone:hover,
+html.dark-mode .drop-zone.drag-over { border-color: #60a5fa !important; background: rgba(59,130,246,.08) !important; }
+html.dark-mode .drop-zone.has-file  { border-color: #22c55e !important; background: rgba(34,197,94,.08) !important; }
+
+html.dark-mode .status-idle    { background: #252535 !important; color: #94a3b8 !important; border-color: #2d2d42 !important; }
+html.dark-mode .status-running { background: rgba(59,130,246,.12) !important; color: #60a5fa !important; border-color: rgba(96,165,250,.3) !important; }
+html.dark-mode .status-done    { background: rgba(34,197,94,.1) !important; color: #4ade80 !important; border-color: rgba(34,197,94,.3) !important; }
+
+html.dark-mode .prog-track { background: #252535 !important; }
+
+html.dark-mode .step-row         { background: #1e1e2e !important; border-color: #22223a !important; }
+html.dark-mode .step-row.active  { background: rgba(59,130,246,.1) !important; border-color: rgba(96,165,250,.3) !important; }
+html.dark-mode .step-row.done    { background: rgba(34,197,94,.08) !important; border-color: rgba(34,197,94,.25) !important; }
+html.dark-mode .step-num.pending { background: #252535 !important; border-color: #2d2d42 !important; color: #64748b !important; }
+html.dark-mode .step-num.finished{ background: rgba(34,197,94,.1) !important; border-color: rgba(34,197,94,.3) !important; }
+
+html.dark-mode .terminal {
+  background: #0d1117 !important;
+  color: #8b949e !important;
+  border-color: #2d2d42 !important;
+}
+
+html.dark-mode .sev-critical { background: rgba(220,38,38,.1) !important; border-color: rgba(220,38,38,.3) !important; }
+html.dark-mode .sev-high     { background: rgba(234,88,12,.1) !important; border-color: rgba(234,88,12,.3) !important; }
+html.dark-mode .sev-medium   { background: rgba(202,138,4,.1) !important; border-color: rgba(202,138,4,.3) !important; }
+html.dark-mode .sev-low      { background: rgba(22,163,74,.1) !important; border-color: rgba(22,163,74,.3) !important; }
+
+html.dark-mode .feat-card { background: #1e1e2e !important; border-color: #2d2d42 !important; }
+
+/* ================================================================
+   01 — 대시보드
+   ================================================================ */
+html.dark-mode .sc-high   { background: rgba(234,88,12,.1) !important; border-color: rgba(234,88,12,.25) !important; }
+html.dark-mode .sc-medium { background: rgba(202,138,4,.1) !important; border-color: rgba(202,138,4,.25) !important; }
+html.dark-mode .sc-low    { background: rgba(22,163,74,.1) !important; border-color: rgba(22,163,74,.25) !important; }
+html.dark-mode .sc-tp     { background: rgba(124,58,237,.1) !important; border-color: rgba(124,58,237,.25) !important; }
+html.dark-mode .bar-bg    { background: #252535 !important; }
+/* Android 플랫폼 배지 */
+html.dark-mode span[style*="background:#dbeafe"] { background: rgba(59,130,246,.15) !important; }
+html.dark-mode span[style*="color:#1e40af"]      { color: #93c5fd !important; }
+/* TOP5 바 차트 — 미채움 배경 및 축선 */
+html.dark-mode div[style*="background:#eef2ff"]           { background: #252535 !important; }
+html.dark-mode [style*="border-top:2px solid #dbe3f0"]    { border-top-color: rgba(255,255,255,.18) !important; }
+
+/* ================================================================
+   02 — 상세 분석
+   ================================================================ */
+html.dark-mode .sidebar {
+  background: #16161f !important;
+  border-right-color: #2d2d42 !important;
+}
+html.dark-mode .lnb-item         { color: #94a3b8 !important; }
+html.dark-mode .lnb-item:hover   { background: #252535 !important; color: #e2e8f0 !important; }
+html.dark-mode .lnb-item.active  { background: rgba(59,130,246,.12) !important; color: #60a5fa !important; }
+html.dark-mode .lnb-icon         { background: #252535 !important; }
+html.dark-mode .lnb-item.active .lnb-icon { background: rgba(59,130,246,.15) !important; }
+html.dark-mode .lnb-cnt          { background: #252535 !important; color: #94a3b8 !important; }
+html.dark-mode .lnb-item.active .lnb-cnt  { background: rgba(59,130,246,.2) !important; color: #60a5fa !important; }
+
+html.dark-mode .main-content { background: #121212 !important; }
+html.dark-mode .panel-title  { color: #e2e8f0 !important; }
+html.dark-mode .panel-sub    { color: #64748b !important; }
+
+html.dark-mode .toolbar          { background: #16161f !important; border-bottom-color: #2d2d42 !important; }
+html.dark-mode .filter-btn       { background: #252535 !important; color: #94a3b8 !important; border-color: #2d2d42 !important; }
+html.dark-mode .filter-btn:hover { border-color: #475569 !important; }
+html.dark-mode .filter-btn.on    { background: rgba(59,130,246,.12) !important; color: #60a5fa !important; border-color: rgba(96,165,250,.3) !important; }
+html.dark-mode .filter-btn.high.on   { background: rgba(234,88,12,.12) !important; color: #fb923c !important; border-color: rgba(234,88,12,.3) !important; }
+html.dark-mode .filter-btn.medium.on { background: rgba(202,138,4,.1) !important; color: #fbbf24 !important; border-color: rgba(202,138,4,.3) !important; }
+html.dark-mode .filter-btn.low.on    { background: rgba(22,163,74,.1) !important; color: #4ade80 !important; border-color: rgba(22,163,74,.3) !important; }
+html.dark-mode .filter-chip-row  { background: #16161f !important; border-bottom-color: #2d2d42 !important; }
+html.dark-mode .filter-chip      { background: rgba(59,130,246,.12) !important; color: #60a5fa !important; border-color: rgba(96,165,250,.3) !important; }
+
+html.dark-mode .vuln-item           { background: #1e1e2e !important; border-bottom-color: rgba(255,255,255,0.06) !important; border-left-color: transparent !important; }
+html.dark-mode .vuln-item:hover     { background: #252535 !important; }
+html.dark-mode .vuln-item.sel       { background: rgba(59,130,246,.1) !important; border-left-color: #60a5fa !important; }
+html.dark-mode #vuln-list-pane      { background: #1e1e2e !important; }
+html.dark-mode .vuln-detail-panel   { background: #252535 !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
+html.dark-mode .section-shell       { background: #1e1e2e !important; }
+/* 취약점 검색 입력 */
+html.dark-mode #vuln-search { background: #252535 !important; color: #c9d5e0 !important; border-color: #2d2d42 !important; }
+/* OSV 하단 정보 바 */
+html.dark-mode #osv-footer-bar { background: #16161f !important; border-top-color: rgba(255,255,255,0.07) !important; }
+
+/* Code block (hljs) — atom-one-dark 스타일 */
+html.dark-mode .hljs                { background: #282c34 !important; border-color: #2d2d42 !important; color: #abb2bf !important; }
+html.dark-mode .hljs-keyword,
+html.dark-mode .hljs-selector-tag  { color: #c678dd !important; }
+html.dark-mode .hljs-string,
+html.dark-mode .hljs-doctag        { color: #98c379 !important; }
+html.dark-mode .hljs-comment       { color: #5c6370 !important; font-style: italic; }
+html.dark-mode .hljs-number,
+html.dark-mode .hljs-literal       { color: #d19a66 !important; }
+html.dark-mode .hljs-type,
+html.dark-mode .hljs-title,
+html.dark-mode .hljs-class .hljs-title { color: #e5c07b !important; }
+html.dark-mode .hljs-built_in      { color: #56b6c2 !important; }
+html.dark-mode .hljs-name,
+html.dark-mode .hljs-attribute     { color: #e06c75 !important; }
+html.dark-mode .hljs-params        { color: #abb2bf !important; }
+html.dark-mode .hljs-meta          { color: #61afef !important; }
+
+html.dark-mode .overview-grid  { background: #252535 !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
+html.dark-mode .overview-card  { background: #1e1e2e !important; border-color: #2d2d42 !important; }
+html.dark-mode .overview-value { color: #e2e8f0 !important; }
+html.dark-mode .overview-label { color: #64748b !important; }
+html.dark-mode .overview-note  { color: #94a3b8 !important; }
+
+html.dark-mode .taxonomy-grid             { background: #1e1e2e !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
+html.dark-mode .taxonomy-card             { background: #252535 !important; border-color: #2d2d42 !important; }
+html.dark-mode .taxonomy-title            { color: #e2e8f0 !important; }
+html.dark-mode .taxonomy-name             { color: #94a3b8 !important; }
+html.dark-mode .taxonomy-count            { color: #e2e8f0 !important; }
+html.dark-mode .taxonomy-row              { border-bottom-color: rgba(255,255,255,0.05) !important; }
+html.dark-mode .taxonomy-row.clickable:hover { background: #2a2a3e !important; }
+
+html.dark-mode .info-hero       { background: linear-gradient(135deg,#252535 0%,#1e1e2e 100%) !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
+html.dark-mode .info-app-title  { color: #e2e8f0 !important; }
+html.dark-mode .info-app-sub    { color: #64748b !important; }
+html.dark-mode .info-chip       { background: #252535 !important; border-color: #2d2d42 !important; color: #94a3b8 !important; }
+html.dark-mode .info-risk-badge { background: #252535 !important; border-color: #2d2d42 !important; }
+html.dark-mode .info-risk-desc  { color: #64748b !important; }
+html.dark-mode .info-detail-grid{ background: #1e1e2e !important; }
+html.dark-mode .info-detail-card{ background: #252535 !important; border-color: #2d2d42 !important; }
+html.dark-mode .info-detail-label { color: #64748b !important; }
+html.dark-mode .info-detail-value { color: #e2e8f0 !important; }
+
+/* 써드파티 분석 요약 아이콘 (CVE / 버전미확인 / 취약점없음) */
+html.dark-mode div[style*="background:#fef2f2"][style*="border:1px solid #fca5a5"] { background: rgba(220,38,38,.12) !important; border-color: rgba(239,68,68,.35) !important; }
+html.dark-mode div[style*="background:#fffbeb"][style*="border:1px solid #fcd34d"] { background: rgba(245,158,11,.10) !important; border-color: rgba(245,158,11,.35) !important; }
+html.dark-mode div[style*="background:#f0fdf4"][style*="border:1px solid #86efac"] { background: rgba(34,197,94,.10) !important;  border-color: rgba(34,197,94,.30) !important; }
+
+/* 수정 방안 박스 */
+html.dark-mode div[style*="background:#f0fdf4"][style*="border:1px solid #bbf7d0"] { background: rgba(34,197,94,.07) !important; border-color: rgba(34,197,94,.22) !important; }
+html.dark-mode p[style*="color:#15803d"] { color: #4ade80 !important; }
+html.dark-mode p[style*="color:#166534"] { color: #86efac !important; }
+
+html.dark-mode .tp-detail-card    { background: #252535 !important; border-color: #2d2d42 !important; }
+html.dark-mode .tp-detail-metric  { background: #1e1e2e !important; border-color: #2d2d42 !important; }
+html.dark-mode .tp-detail-label   { color: #64748b !important; }
+html.dark-mode .tp-detail-value   { color: #e2e8f0 !important; }
+html.dark-mode .tp-detail-section { border-top-color: rgba(255,255,255,0.06) !important; }
+html.dark-mode .tp-detail-item    { border-bottom-color: rgba(255,255,255,0.06) !important; }
+html.dark-mode .tp-detail-empty   { color: #64748b !important; }
+
+html.dark-mode .stack-section-head  { background: #252535 !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
+html.dark-mode .stack-section-title { color: #e2e8f0 !important; }
+html.dark-mode .stack-section-sub   { color: #64748b !important; }
+html.dark-mode .stack-section-count { background: rgba(59,130,246,.12) !important; color: #60a5fa !important; border-color: rgba(96,165,250,.3) !important; }
+html.dark-mode .tp-row-clickable.selected td { background: rgba(59,130,246,.1) !important; }
+
+/* ================================================================
+   03 — 최근 분석
+   ================================================================ */
+html.dark-mode .summary-card  { background: #1e1e2e !important; border-color: #2d2d42 !important; }
+html.dark-mode .summary-label { color: #64748b !important; }
+html.dark-mode .summary-value { color: #e2e8f0 !important; }
+html.dark-mode .summary-note  { color: #94a3b8 !important; }
+html.dark-mode .page-title    { color: #e2e8f0 !important; }
+html.dark-mode .page-sub      { color: #64748b !important; }
+html.dark-mode .app-icon      { background: rgba(59,130,246,.12) !important; border-color: rgba(96,165,250,.3) !important; }
+/* ── 위험 레벨 pill ── */
+html.dark-mode .risk-high   { background: rgba(220,38,38,.15) !important; color: #f87171 !important; }
+html.dark-mode .risk-medium { background: rgba(217,119,6,.15) !important;  color: #fbbf24 !important; }
+html.dark-mode .risk-low    { background: rgba(22,163,74,.15) !important;  color: #4ade80 !important; }
+
+/* ================================================================
+   인라인 스타일 오버라이드 — 텍스트 색상
+   (element 타입 한정으로 심각도 텍스트 색상 오버라이드 방지)
+   ================================================================ */
+html.dark-mode p[style*="color:#0f172a"],
+html.dark-mode span[style*="color:#0f172a"],
+html.dark-mode div[style*="color:#0f172a"]   { color: #e2e8f0 !important; }
+
+html.dark-mode p[style*="color:#1e293b"],
+html.dark-mode span[style*="color:#1e293b"],
+html.dark-mode div[style*="color:#1e293b"]   { color: #c9d5e0 !important; }
+
+html.dark-mode p[style*="color:#334155"],
+html.dark-mode span[style*="color:#334155"],
+html.dark-mode div[style*="color:#334155"]   { color: #94a3b8 !important; }
+
+html.dark-mode p[style*="color:#475569"],
+html.dark-mode span[style*="color:#475569"],
+html.dark-mode div[style*="color:#475569"]   { color: #64748b !important; }
+
+html.dark-mode p[style*="color:#64748b"],
+html.dark-mode span[style*="color:#64748b"],
+html.dark-mode div[style*="color:#64748b"]   { color: #64748b !important; }
+
+html.dark-mode p[style*="color:#94a3b8"],
+html.dark-mode span[style*="color:#94a3b8"],
+html.dark-mode div[style*="color:#94a3b8"]   { color: #475569 !important; }
+
+/* ── 인라인 테두리 오버라이드 ── */
+html.dark-mode [style*="border-bottom:1px solid #e5e9f0"]  { border-bottom-color: rgba(255,255,255,0.07) !important; }
+html.dark-mode [style*="border-bottom:1px solid #f1f5f9"]  { border-bottom-color: rgba(255,255,255,0.05) !important; }
+html.dark-mode [style*="border-bottom:1px solid #f8fafc"]  { border-bottom-color: rgba(255,255,255,0.04) !important; }
+html.dark-mode [style*="border-top:1px solid #f1f5f9"]     { border-top-color: rgba(255,255,255,0.05) !important; }
+html.dark-mode [style*="border-top:1px solid #e5e9f0"]     { border-top-color: rgba(255,255,255,0.07) !important; }
+html.dark-mode [style*="border:1px solid #e5eaf2"]          { border-color: #2d2d42 !important; }
+html.dark-mode [style*="border:1px solid #e2e8f0"]          { border-color: #2d2d42 !important; }
+html.dark-mode [style*="border:1.5px solid #e2e8f0"]        { border-color: #2d2d42 !important; }
+html.dark-mode [style*="border:1px solid #f1f5f9"]          { border-color: #22223a !important; }
+html.dark-mode [style*="border:1.5px solid #d1dbe8"]        { border-color: #2d2d42 !important; }
+html.dark-mode [style*="border:1px solid #e8edf2"]          { border-color: #2d2d42 !important; }
+html.dark-mode [style*="border:1px solid #e7edf6"]          { border-color: #2d2d42 !important; }
+html.dark-mode [style*="border:1px solid #dbe7fb"]          { border-color: #2d3a55 !important; }
+html.dark-mode [style*="border:1px solid #bfdbfe"]          { border-color: rgba(96,165,250,.3) !important; }
+
+/* ── 인라인 배경 오버라이드 (명시적 패턴만) ── */
+html.dark-mode div[style*="background:#f8fafc"] { background: #252535 !important; }
+html.dark-mode div[style*="background:#f8fbff"] { background: #252535 !important; }
+html.dark-mode div[style*="background:#fcfdff"] { background: #1e1e2e !important; }
+/* 써드파티 배지 (#eff6ff = 라이트 블루) */
+html.dark-mode div[style*="background:#eff6ff"] { background: rgba(59,130,246,.1) !important; }
+/* 인라인 파란 텍스트 (#1d4ed8) */
+html.dark-mode span[style*="color:#1d4ed8"]     { color: #60a5fa !important; }
+
+/* ================================================================
+   다크 모드 토글 버튼
+   ================================================================ */
+#dark-mode-toggle {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  background: #e2e8f0;
+  transition: background .3s;
+  flex-shrink: 0;
+  outline: none;
+  overflow: hidden;
+}
+#dark-mode-toggle:focus-visible { box-shadow: 0 0 0 2px #3b82f6; }
+
+#dark-mode-toggle .dm-thumb {
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%) translateX(0);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+  transition: transform .25s cubic-bezier(.4,0,.2,1), background .3s;
+  z-index: 1;
+}
+
+#dark-mode-toggle .dm-icon-sun,
+#dark-mode-toggle .dm-icon-moon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  line-height: 1;
+  pointer-events: none;
+  transition: opacity .2s;
+  z-index: 0;
+}
+#dark-mode-toggle .dm-icon-sun  { left: 6px; opacity: 1; }
+#dark-mode-toggle .dm-icon-moon { right: 5px; opacity: 0; }
+
+html.dark-mode #dark-mode-toggle { background: #2d3a55; }
+html.dark-mode #dark-mode-toggle .dm-thumb {
+  transform: translateY(-50%) translateX(24px);
+  background: #1e1e2e;
+}
+html.dark-mode #dark-mode-toggle .dm-icon-sun  { opacity: 0; }
+html.dark-mode #dark-mode-toggle .dm-icon-moon { opacity: 1; }

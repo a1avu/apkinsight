@@ -6,6 +6,8 @@
     <meta http-equiv="Expires" content="0">
     <base href="/front/">
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<script src="dark-mode.js"></script>
+<link rel="stylesheet" href="dark-mode.css"/>
 <title>APKInsight — 상세 분석</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css"/>
@@ -170,6 +172,12 @@
       <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="13" height="13" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input style="border:1.5px solid #e2e8f0;border-radius:7px;padding:6px 10px 6px 28px;font-size:12px;outline:none;width:200px;background:#fff;font-family:'Inter',sans-serif;color:#1e293b" type="text" placeholder="APK 검색..."/>
     </div>
+    <!-- Dark mode toggle -->
+    <button id="dark-mode-toggle" onclick="toggleDarkMode()" title="다크 모드 전환" aria-label="다크 모드 전환">
+      <span class="dm-icon-sun">☀️</span>
+      <span class="dm-icon-moon">🌙</span>
+      <span class="dm-thumb"></span>
+    </button>
     <button class="btn-primary" onclick="navigate('00-upload-scan.html')">
       <svg width="12" height="12" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>새 스캔
     </button>
@@ -525,7 +533,7 @@
       </div>
 
       <!-- Bottom info bar -->
-      <div style="border-top:1px solid #e5e9f0;padding:9px 20px;background:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div id="osv-footer-bar" style="border-top:1px solid #e5e9f0;padding:9px 20px;background:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
         <span style="font-size:11.5px;color:#94a3b8;display:flex;align-items:center;gap:6px">
           <svg width="13" height="13" fill="none" stroke="#94a3b8" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/></svg>
           OSV.dev 데이터를 기반으로 분석되며, 결과는 파일 내 메타데이터를 통해 탐지됩니다.

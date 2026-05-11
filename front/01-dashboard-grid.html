@@ -6,6 +6,8 @@
     <meta http-equiv="Expires" content="0">
     <base href="/front/">
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<script src="dark-mode.js"></script>
+<link rel="stylesheet" href="dark-mode.css"/>
 <title>APKInsight — 대시보드</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -101,6 +103,12 @@
       <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="13" height="13" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input style="border:1.5px solid #e2e8f0;border-radius:7px;padding:6px 10px 6px 28px;font-size:12px;outline:none;width:200px;background:#fff;font-family:'Inter',sans-serif;color:#1e293b" type="text" placeholder="APK 검색..."/>
     </div>
+    <!-- Dark mode toggle -->
+    <button id="dark-mode-toggle" onclick="toggleDarkMode()" title="다크 모드 전환" aria-label="다크 모드 전환">
+      <span class="dm-icon-sun">☀️</span>
+      <span class="dm-icon-moon">🌙</span>
+      <span class="dm-thumb"></span>
+    </button>
     <!-- New scan -->
     <button class="btn-primary" onclick="location.href='00-upload-scan.html'">
       <svg width="12" height="12" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
@@ -346,17 +354,21 @@ function renderTop5(items) {
 /* ═══════════ OWASP 색상 팔레트 (M1~M10) ═══════════ */
 const OWASP_PALETTE=['#f97316','#06b6d4','#8b5cf6','#ef4444','#3b82f6','#ec4899','#64748b','#f59e0b','#22c55e','#14b8a6'];
 let _owaspChart=null;
+let _lastOwaspItems=null;
 
 /* ═══════════ OWASP 도넛 차트 ═══════════ */
 function drawOWASPDoughnut(items){
   const canvas=document.getElementById('owasp-doughnut');
   if(!canvas)return;
+  _lastOwaspItems=items;
 
+  const isDark=document.documentElement.classList.contains('dark-mode');
   const total=items.reduce((s,[,c])=>s+c,0);
   const totalEl=document.getElementById('owasp-total');
   if(totalEl)totalEl.textContent=total||'-';
 
-  const bgColors=items.map(([,c],i)=>c>0?OWASP_PALETTE[i%OWASP_PALETTE.length]:'#e2e8f0');
+  const emptyColor=isDark?'#2d2d42':'#e2e8f0';
+  const bgColors=items.map(([,c],i)=>c>0?OWASP_PALETTE[i%OWASP_PALETTE.length]:emptyColor);
 
   if(_owaspChart){_owaspChart.destroy();_owaspChart=null;}
 
@@ -367,7 +379,7 @@ function drawOWASPDoughnut(items){
       datasets:[{
         data:items.map(([,c])=>c>0?c:0),
         backgroundColor:bgColors,
-        borderColor:'#ffffff',
+        borderColor:isDark?'#1e1e2e':'#ffffff',
         borderWidth:3,
         hoverOffset:10,
         hoverBorderWidth:3,
@@ -388,10 +400,10 @@ function drawOWASPDoughnut(items){
           bodyFont:{family:'Inter',size:12},
           titleFont:{family:'Inter',weight:'700',size:12},
           padding:10,
-          backgroundColor:'#ffffff',
-          bodyColor:'#334155',
-          titleColor:'#0f172a',
-          borderColor:'#e2e8f0',
+          backgroundColor:isDark?'#252535':'#ffffff',
+          bodyColor:isDark?'#c9d5e0':'#334155',
+          titleColor:isDark?'#e2e8f0':'#0f172a',
+          borderColor:isDark?'#2d2d42':'#e2e8f0',
           borderWidth:1,
         }
       },
@@ -403,18 +415,25 @@ function drawOWASPDoughnut(items){
   const sorted=[...items.map(([l,c,p],i)=>({l,c,p,i}))].sort((a,b)=>b.c-a.c);
   const listEl=document.getElementById('owasp-list');
   if(!listEl)return;
+  const labelColor=isDark?'#94a3b8':'#334155';
+  const countColor=isDark?'#e2e8f0':'#0f172a';
   listEl.innerHTML=sorted.map(({l,c,p,i})=>{
     const mNum=l.match(/^(M\d+)/)?.[1]||'';
     const short=l.replace(/^M\d+:\s*/,'');
     return`<div style="display:flex;align-items:center;gap:8px;">
       <div style="width:9px;height:9px;border-radius:50%;background:${OWASP_PALETTE[i%OWASP_PALETTE.length]};flex-shrink:0"></div>
       <span style="font-size:10.5px;color:#64748b;font-weight:700;flex-shrink:0;min-width:26px">${mNum}</span>
-      <span style="font-size:11px;color:#334155;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(short)}">${esc(short)}</span>
-      <span style="font-size:12px;font-weight:700;color:#0f172a;flex-shrink:0;min-width:20px;text-align:right">${c}</span>
+      <span style="font-size:11px;color:${labelColor};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(short)}">${esc(short)}</span>
+      <span style="font-size:12px;font-weight:700;color:${countColor};flex-shrink:0;min-width:20px;text-align:right">${c}</span>
       <span style="font-size:10.5px;color:#94a3b8;flex-shrink:0;min-width:44px;text-align:right">${p}</span>
     </div>`;
   }).join('');
 }
+
+/* 다크 모드 전환 시 차트 재렌더링 */
+new MutationObserver(()=>{
+  if(_lastOwaspItems)drawOWASPDoughnut(_lastOwaspItems);
+}).observe(document.documentElement,{attributeFilter:['class']});
 
 /* ═══════════ OWASP list → 도넛으로 위임 ═══════════ */
 function renderOwaspList(items){drawOWASPDoughnut(items);}
