@@ -145,7 +145,7 @@ deep-translator  # CVE summary 한국어 번역
 - 써드파티 관련 JSON 파일(libs.json, osv.json) DB 테이블 설계 및 저장/조회/삭제 파이프라인 구현
 - shadcn UI 기반 정식 프론트엔드 연동 후 위험 점수, 진행도 기능 추가
 
-## 변경사항
+## apkinsight_v2 변경사항
 
 ### 1. 스캔 로그 누락 수정
 - `[4/7]`, `[5/7]` 단계 로그가 출력되지 않던 문제 수정
