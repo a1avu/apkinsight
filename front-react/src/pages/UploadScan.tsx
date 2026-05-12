@@ -120,6 +120,7 @@ export default function UploadScan() {
   const [isRunning, setIsRunning] = useState(false)
   const [showLog, setShowLog] = useState(false)
   const [showResult, setShowResult] = useState(false)
+  const [showApiKeyErrorModal, setShowApiKeyErrorModal] = useState(false)
 
   // Progress
   const [steps, setSteps] = useState<StepState[]>(Array(5).fill('pending') as StepState[])
@@ -317,7 +318,9 @@ export default function UploadScan() {
             appendLog('OK    분석 완료!')
             await fetchResult()
           } else if (bs === 'error') {
-            onError('WARN  분석 중 오류 발생')
+            const isApiKeyError = log.some(l => l.includes('API 키 검증 실패'))
+            if (isApiKeyError) setShowApiKeyErrorModal(true)
+            onError(isApiKeyError ? 'WARN  API 키 검증 실패' : 'WARN  분석 중 오류 발생')
           } else if (bs === 'idle' && currentStepRef.current >= 0) {
             onError('WARN  서버가 분석을 중단했습니다')
           }
@@ -359,6 +362,31 @@ export default function UploadScan() {
 
   return (
     <div className="min-h-screen bg-[#f1f3f6] text-[#1e293b] text-[13px]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+
+      {/* ════ API 키 검증 실패 모달 ════ */}
+      {showApiKeyErrorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,.12)] border border-[#e8edf2] p-6 w-[300px] animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-[#fef2f2] border border-[#fecaca] flex items-center justify-center">
+                <svg width="20" height="20" fill="none" stroke="#dc2626" strokeWidth="2.2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-[14px] font-bold text-[#0f172a] mb-1">API 키 검증 실패</p>
+                <p className="text-[12px] text-[#64748b] leading-relaxed">입력하신 API 키를 확인하고<br/>다시 시도해주세요.</p>
+              </div>
+              <button
+                className="mt-1 w-full bg-[#1d4ed8] hover:bg-[#1e40af] text-white text-[13px] font-semibold py-2 rounded-[7px] transition-colors"
+                onClick={() => setShowApiKeyErrorModal(false)}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ════ Navbar ════ */}
       <nav className="bg-white border-b border-[#e5e9f0] h-[52px] px-[22px] sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,.04)] flex items-center justify-between">
