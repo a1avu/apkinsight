@@ -31,7 +31,8 @@ services:
     volumes:
       - ./input:/input
       - ./output:/output
-      - ./:/app
+      - ./backend:/app
+      - ./front:/app/front
     restart: unless-stopped
 
     # 🔥 폴더 자동 생성 핵심

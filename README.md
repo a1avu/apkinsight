@@ -162,3 +162,14 @@ deep-translator  # CVE summary 한국어 번역
 - 다크 모드 전환 시 로고 이미지 자동 교체 (`apkinsight.png` ↔ `apkinsight_dark.png`)
   - `dark-mode.css` 수정
   - `dark-mode.js` 수정
+
+
+---
+
+- 상세 분석 -> cve 발견 항목 -> 심각도 출력 이상하게 나옴
+	(CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)  
+	-> cvss 라이브러리 사용으로 해결
+- pdf 위험점수 반영 안됨, 위험도(하이/미디움/로우) 각각 갯수 못 셈 -> 해결 왠지 모르겠는데 되네 ...??  -> 0
+- 백엔드 파일 한데 묶기 -> 0
+
+- shadcn ui로 변경 진행 중

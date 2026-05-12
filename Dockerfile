@@ -39,32 +39,15 @@ RUN pip install --no-cache-dir \
     psycopg[binary] \
     sqlalchemy \
     deep-translator \
-    reportlab
+    reportlab \
+    cvss
 
 # 작업 디렉토리
 WORKDIR /app
 
-# 분석 스크립트 복사
-#apkleaks 관련 .py 삭제
-COPY grep_custom.py .
-COPY manifest_analyzer.py .
-COPY patterns.json .
-COPY merge.py .
-COPY gemini_api.py .
-COPY ollama_client.py .
-COPY analyze.py .
-COPY init_db.py .
-COPY db_insert.py .
-COPY db_select.py .
-COPY db_delete.py .
-COPY lib_version_detect.py .
-COPY osv_lookup.py .
-COPY lib_patterns.json .
-COPY pdf_report.py .
-
-
-#프론트 html 복사
-COPY temp_front.html .
+# 백엔드 파일 복사
+COPY backend/ .
+COPY front/ front/
 
 # 입출력 디렉토리
 RUN mkdir -p /input /output

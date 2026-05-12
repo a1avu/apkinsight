@@ -248,16 +248,26 @@ def run_osv_scan(libs: list[dict], delay: float = 0.2) -> list[dict]:
 
     return findings
 
-
 def extract_severity(vuln: dict) -> str:
-    # CVSS severity 추출
     for sev in vuln.get("severity", []):
         score = sev.get("score", "")
-        if score:
-            return score
-    # database_specific에서 시도
+        if score.startswith("CVSS:3"):
+            try:
+                from cvss import CVSS3
+                c = CVSS3(score)
+                severity = c.severities()[0]  # "Critical", "High", "Medium", "Low", "None"
+                # Critical → High로 통합
+                if severity in ("Critical", "High"):
+                    return "High"
+                elif severity == "Medium":
+                    return "Medium"
+                elif severity in ("Low", "None"):
+                    return "Low"
+            except Exception:
+                pass
+
     db = vuln.get("database_specific", {})
-    return db.get("severity", "UNKNOWN")
+    return db.get("severity", "Unknown")
 
 
 def main():
