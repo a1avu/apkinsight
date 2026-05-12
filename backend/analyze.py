@@ -170,7 +170,7 @@ async def start_analysis(
     """
     global status, status_message
 
-    if status != "idle":
+    if status not in ("idle", "error"):
         return {"error": "analysis already running"} #프로세스를 두 번 요청해서 꼬이게 하지 않게 방지
     global latest_result
     latest_result = {} #혹시 몰라 한 번 더 갈아버리고 갑니다.
@@ -256,7 +256,7 @@ def main(apk_path, llm_provider, api_key) -> None:
         print("[!] API 키 검증 실패")
         status_message = "API 키 검증 실패 — 키를 확인하세요"
         status_log.append(status_message)
-        status = "idle"
+        status = "error"
         return
 
     # 절대 경로로 변환 후 기본 변수 설정
