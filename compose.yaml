@@ -13,12 +13,18 @@ services:
     volumes:
       - ./db_data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U apkinsight -d apkinsight"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   app:
     build: .
     container_name: apkinsight-app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -31,13 +37,9 @@ services:
     volumes:
       - ./input:/input
       - ./output:/output
-      - ./backend:/app
-      - ./front-react/dist:/app/front-react/dist
     restart: unless-stopped
-
-    # 🔥 폴더 자동 생성 핵심
     command: >
       sh -c "
-      mkdir -p /input /output /app &&
+      mkdir -p /input /output &&
       python3 analyze.py
       "
