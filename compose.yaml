@@ -32,7 +32,7 @@ services:
       - ./input:/input
       - ./output:/output
       - ./backend:/app
-      - ./front:/app/front
+      - ./front-react/dist:/app/front-react/dist
     restart: unless-stopped
 
     # 🔥 폴더 자동 생성 핵심

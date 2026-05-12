@@ -47,7 +47,7 @@ WORKDIR /app
 
 # 백엔드 파일 복사
 COPY backend/ .
-COPY front/ front/
+COPY front-react/dist/ front-react/dist/
 
 # 입출력 디렉토리
 RUN mkdir -p /input /output

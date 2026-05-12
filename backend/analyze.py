@@ -473,8 +473,7 @@ def generate_report(analysis_id: int):
 # 03.24 ++)이제 localhost:8000 에 들어가면 해당 서비스 이용 가능
 # `/front` 폴더를 정적 서빙
 from fastapi.responses import RedirectResponse
-app.mount("/front", StaticFiles(directory="/app/front", html=True), name="front")
-
+app.mount("/", StaticFiles(directory="/app/front-react/dist", html=True), name="front")
 # 루트 접근 시 메인 페이지로 서버 기반 리다이렉트
 @app.get("/", include_in_schema=False)
 async def serve_frontend():
