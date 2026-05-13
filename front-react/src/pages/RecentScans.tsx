@@ -69,7 +69,7 @@ export default function RecentScans() {
   const isDark = useDarkMode()
   const [analyses, setAnalyses]   = useState<ListEntry[]>([])
   const [hydrating, setHydrating] = useState(false)
-  const [globalSearch, setGlobalSearch] = useState('')
+  const globalSearch = ''
   const [listSearch,   setListSearch]   = useState('')
   const abortRef = useRef(false)
 
@@ -164,16 +164,6 @@ export default function RecentScans() {
           </div>
         </div>
         <div className="flex items-center gap-2.5">
-          <div className="relative">
-            <svg className="absolute left-[9px] top-1/2 -translate-y-1/2 pointer-events-none" width="13" height="13" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input
-              value={globalSearch}
-              onChange={e => setGlobalSearch(e.target.value)}
-              className="border-[1.5px] border-slate-200 rounded-[7px] py-[6px] pr-2.5 pl-7 text-xs outline-none w-[200px] bg-white text-slate-800 font-[Inter,sans-serif]"
-              type="text"
-              placeholder="APK 검색..."
-            />
-          </div>
           <DarkModeToggle />
           <button
             onClick={() => navigate('/')}

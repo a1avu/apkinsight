@@ -405,16 +405,6 @@ export default function UploadScan() {
           </div>
         </div>
         <div className="flex items-center gap-2.5">
-          <div className="relative">
-            <svg className="absolute left-[9px] top-1/2 -translate-y-1/2 pointer-events-none" width="13" height="13" fill="none" stroke="#94a3b8" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input
-              className="border border-[#e2e8f0] rounded-[7px] py-[6px] pr-[10px] pl-7 text-[12px] outline-none w-[200px] bg-white text-[#1e293b] focus:border-blue-400 transition-colors"
-              type="text"
-              placeholder="APK 검색..."
-            />
-          </div>
           <DarkModeToggle />
           <Button
             size="sm"
