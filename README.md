@@ -173,3 +173,5 @@ deep-translator  # CVE summary 한국어 번역
 - 백엔드 파일 한데 묶기 -> 0
 
 - shadcn ui로 프론트 변경
+
+- 상단 검색창 제거
