@@ -185,7 +185,7 @@ def db_insert(
                     safe_str(lib.get("name") or lib.get("artifact") or lib.get("library")),
                     safe_str(lib.get("version")),
                     safe_str(lib.get("type")),
-                    safe_str(lib.get("source")),
+                    safe_str(lib.get("source") or lib.get("version_source")),
                 ))
 
         # =========================

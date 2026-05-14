@@ -406,14 +406,13 @@ export default function UploadScan() {
         </div>
         <div className="flex items-center gap-2.5">
           <DarkModeToggle />
-          <Button
-            size="sm"
-            className="bg-[#1d4ed8] hover:bg-[#1e40af] text-white text-[12px] font-semibold gap-[5px] h-8"
-            onClick={() => window.location.reload()}
+          <button
+            onClick={() => navigate('/')}
+            className="bg-blue-700 text-white border-none px-4 py-[7px] rounded-[7px] text-xs font-semibold cursor-pointer transition-colors hover:bg-blue-800 flex items-center gap-1.5"
           >
-            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+            <svg width="12" height="12" fill="none" stroke="#fff" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
             새 스캔
-          </Button>
+          </button>
         </div>
       </nav>
 

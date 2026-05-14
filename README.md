@@ -175,3 +175,13 @@ deep-translator  # CVE summary 한국어 번역
 - shadcn ui로 프론트 변경
 
 - 상단 검색창 제거
+
+- pdf 보고서 생성 양식 변경 
+  -> (전체 수정방안 보여주기, cve항목 먼저 보여주기(가독성을 위해))
+
+- 서드파티 분석에 source에 아무것도 추가가 안되던 거 수정 
+  -> META-INF/com.google.android.gms_play-services-basement.version
+  -> classes.dex
+  -> kotlin-tooling-metadata.json
+  -> pom.properties 경로 등
+

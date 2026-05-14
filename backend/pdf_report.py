@@ -151,39 +151,6 @@ def build_pdf(detail: dict, osv_payload: dict) -> io.BytesIO:
     story.append(sum_table)
     story.append(Spacer(1, 10))
 
-    # ── 소스코드 취약점 ──────────────────────────────────
-    story.append(P(f"소스코드 취약점 ({len(own)}건)", "h2"))
-    if own:
-        vuln_hdr = [P(h, "cell_hdr") for h in ["위험도", "CWE", "카테고리", "파일", "Line"]]
-        vuln_rows = []
-        for v in own:
-            fp = str(v.get("file_path", "-"))
-            fp_short = fp.split("/")[-1] if "/" in fp else fp
-            rc = risk_color(v.get("risk", ""))
-            risk_cell = Paragraph(str(v.get("risk", "-")), ParagraphStyle(
-                "rc", fontName=kf, fontSize=8, leading=11,
-                textColor=rc, wordWrap="CJK",
-            ))
-            vuln_rows.append([
-                risk_cell,
-                P(str(v.get("cwe", "-")), "cell"),
-                P(str(v.get("category", "-"))[:45], "cell"),
-                P(fp_short[:35], "cell"),
-                P(str(v.get("line", "-")), "cell"),
-            ])
-        vuln_table = Table(
-            [vuln_hdr] + vuln_rows,
-            colWidths=[18*mm, 22*mm, 58*mm, 52*mm, 12*mm],
-        )
-        vuln_table.setStyle(TableStyle([
-            *_base_table_style(colors.HexColor("#0f172a")),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.HexColor("#fff7ed"), colors.white]),
-        ]))
-        story.append(vuln_table)
-    else:
-        story.append(P("소스코드 취약점이 없습니다.", "body"))
-    story.append(Spacer(1, 8))
-
     # ── CVE 발견 항목 ────────────────────────────────────
     if findings:
         story.append(P(f"CVE 발견 항목 ({len(findings)}건)", "h2"))
@@ -260,6 +227,147 @@ def build_pdf(detail: dict, osv_payload: dict) -> io.BytesIO:
             ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.HexColor("#f8fafc"), colors.white]),
         ]))
         story.append(lib_table)
+
+
+    # ── 소스코드 취약점 ──────────────────────────────────
+    story.append(P(f"소스코드 취약점 ({len(own)}건)", "h2"))
+    if own:
+        W = A4[0] - 18 * mm * 2  # usable page width ≈ 174 mm
+
+        def _esc(s):
+            return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+        for idx, v in enumerate(own, 1):
+            risk     = str(v.get("risk") or "LOW").upper()
+            cwe      = str(v.get("cwe") or "-")
+            category = str(v.get("category") or "-")
+            fp       = str(v.get("file_path") or "-")
+            line_no  = str(v.get("line") or "0")
+            expl     = _esc(str(v.get("explanation") or ""))
+            code_str = _esc(str(v.get("code") or ""))
+            fix_str  = _esc(str(v.get("fix") or ""))
+            owasp    = str(v.get("owasp") or "-")
+
+            if risk == "CRITICAL":
+                sev_fg = colors.HexColor("#991b1b")
+            elif risk == "HIGH":
+                sev_fg = colors.HexColor("#c2410c")
+            elif risk == "MEDIUM":
+                sev_fg = colors.HexColor("#92400e")
+            else:
+                sev_fg = colors.HexColor("#166534")
+
+            slate   = colors.HexColor("#64748b")
+            dark    = colors.HexColor("#0f172a")
+            divider = colors.HexColor("#e5e9f0")
+            hdr_bg  = colors.HexColor("#f8fafc")
+            code_bg = colors.HexColor("#f1f5f9")
+            fix_bg  = colors.HexColor("#f0fdf4")
+
+            def mk(name, fn=kf, **kw):
+                return ParagraphStyle(f"{name}_{idx}", fontName=fn, wordWrap="CJK", **kw)
+
+            badge_s = mk("b",  fontSize=8,   leading=10, textColor=sev_fg)
+            grey_s  = mk("g",  fontSize=8,   leading=10, textColor=slate)
+            cat_s   = mk("c",  fontSize=9.5, leading=12, textColor=dark)
+            lbl_s   = mk("l",  fontSize=7.5, leading=9,  textColor=colors.HexColor("#94a3b8"))
+            body_s  = mk("d",  fontSize=9,   leading=14, textColor=colors.HexColor("#475569"))
+            fix_s   = mk("f",  fontSize=9,   leading=14, textColor=colors.HexColor("#166534"))
+            fixl_s  = mk("fl", fontSize=7.5, leading=9,  textColor=colors.HexColor("#15803d"))
+            fp_s    = ParagraphStyle(f"fp_{idx}", fontName=kf,
+                                     fontSize=8, leading=11, textColor=slate)
+            code_s  = ParagraphStyle(f"cd_{idx}", fontName=kf,
+                                     fontSize=8, leading=12,
+                                     textColor=colors.HexColor("#1e293b"))
+
+            HDR_PAD  = 6 * mm
+            BODY_PAD = 10 * mm
+            HDR_IW   = W - HDR_PAD * 2
+            BODY_IW  = W - BODY_PAD * 2
+            CAT_W    = HDR_IW - 14*mm - 22*mm - 12*mm
+
+            hdr_inner = Table(
+                [[Paragraph(f"<b>{risk}</b>", badge_s),
+                  Paragraph(cwe, grey_s),
+                  Paragraph(f"<b>{category}</b>", cat_s),
+                  Paragraph(f"#{idx}", grey_s)]],
+                colWidths=[14*mm, 22*mm, CAT_W, 12*mm],
+            )
+            hdr_inner.setStyle(TableStyle([
+                ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+                ("TOPPADDING",    (0, 0), (-1, -1), 0),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+                ("LEFTPADDING",   (0, 0), (-1, -1), 2),
+                ("RIGHTPADDING",  (0, 0), (-1, -1), 2),
+            ]))
+
+            ftr_inner = Table(
+                [[Paragraph("CWE",   lbl_s),
+                  Paragraph(cwe,     body_s),
+                  Paragraph("OWASP", lbl_s),
+                  Paragraph(owasp,   body_s)]],
+                colWidths=[10*mm, 28*mm, 14*mm, BODY_IW - 52*mm],
+            )
+            ftr_inner.setStyle(TableStyle([
+                ("VALIGN",        (0, 0), (-1, -1), "TOP"),
+                ("TOPPADDING",    (0, 0), (-1, -1), 0),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+                ("LEFTPADDING",   (0, 0), (-1, -1), 2),
+                ("RIGHTPADDING",  (0, 0), (-1, -1), 6),
+            ]))
+
+            rows, ts = [], []
+            fp_short = fp.rsplit("/", 1)[-1] if "/" in fp else fp
+
+            def add(content, bg, tp, bp, lp=BODY_PAD, rp=BODY_PAD, lb=False, la=False):
+                r = len(rows)
+                rows.append([content])
+                ts.extend([
+                    ("BACKGROUND",    (0, r), (-1, r), bg),
+                    ("TOPPADDING",    (0, r), (-1, r), tp),
+                    ("BOTTOMPADDING", (0, r), (-1, r), bp),
+                    ("LEFTPADDING",   (0, r), (-1, r), lp),
+                    ("RIGHTPADDING",  (0, r), (-1, r), rp),
+                    ("VALIGN",        (0, r), (-1, r), "TOP"),
+                ])
+                if lb:
+                    ts.append(("LINEBELOW", (0, r), (-1, r), 0.4, divider))
+                if la:
+                    ts.append(("LINEABOVE", (0, r), (-1, r), 0.4, divider))
+
+            # header: badge / CWE / category / #N
+            add(hdr_inner,
+                hdr_bg, 8, 4, lp=HDR_PAD, rp=HDR_PAD)
+            # file:line sub-header
+            add(Paragraph(f"{fp_short}:{line_no}", grey_s),
+                hdr_bg, 2, 8, lp=HDR_PAD, rp=HDR_PAD, lb=True)
+
+            if expl:
+                add(Paragraph("설  명", lbl_s), colors.white, 10, 3)
+                add(Paragraph(expl, body_s),    colors.white, 2,  10)
+
+            add(Paragraph("파  일", lbl_s),            colors.white, 10, 3, la=bool(expl))
+            add(Paragraph(f"{fp} : {line_no}", fp_s), colors.white, 2,  10)
+
+            if code_str:
+                add(Paragraph("코  드", lbl_s),  colors.white, 10, 3, la=True)
+                add(Paragraph(code_str, code_s), code_bg,       8, 8)
+
+            if fix_str:
+                add(Paragraph("수정 방안", fixl_s), fix_bg, 10, 3, la=True)
+                add(Paragraph(fix_str, fix_s),      fix_bg, 2,  10)
+
+            add(ftr_inner, colors.white, 8, 8, la=True)
+
+            ts.append(("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#e2e8f0")))
+
+            card = Table(rows, colWidths=[W])
+            card.setStyle(TableStyle(ts))
+            story.append(card)
+            story.append(Spacer(1, 6))
+    else:
+        story.append(P("소스코드 취약점이 없습니다.", "body"))
+    story.append(Spacer(1, 8))
 
     doc.build(story)
     buf.seek(0)
