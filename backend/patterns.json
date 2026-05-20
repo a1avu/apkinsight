@@ -84,7 +84,9 @@
   "kakao_api_key": {
     "patterns": [
       "(?i)(kakao_?api_?key|kakao_?app_?key|kakaoAppKey)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']",
-      "(?i)KakaoSDK\\.init\\([\"'][^\"']{10,}[\"']"
+      "(?i)KakaoSdk\\.init[^(]*\\([^,]+,\\s*[\"'][^\"']{8,}[\"']",
+      "(?i)<string\\s+name=[\"'][^\"']*kakao[^\"']*[\"'][^>]*>[a-zA-Z0-9]{10,}</string>",
+      "android:scheme=[\"']kakao[a-zA-Z0-9]{10,}[\"']"
     ],
     "cwe": "CWE-798",
     "owasp": "M1: Improper Credential Usage",
@@ -92,7 +94,8 @@
   },
   "naver_api_key": {
     "patterns": [
-      "(?i)(naver_?client_?id|naver_?client_?secret|naverClientId)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
+      "(?i)(naver_?client_?id|naver_?client_?secret|naverClientId)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
+      "(?i)[\"']X-Naver-Client-(?:Id|Secret)[\"']\\s*,\\s*[\"'][^\"']{8,}[\"']"
     ],
     "cwe": "CWE-798",
     "owasp": "M1: Improper Credential Usage",
@@ -102,28 +105,36 @@
     "patterns": [
       "(?i)(toss_?api_?key|tossApiKey|toss_?secret)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']",
       "test_sk_[a-zA-Z0-9]+",
-      "live_sk_[a-zA-Z0-9]+"
+      "live_sk_[a-zA-Z0-9]+",
+      "test_gsk_[a-zA-Z0-9]+",
+      "live_gsk_[a-zA-Z0-9]+"
     ],
     "cwe": "CWE-798",
     "owasp": "M1: Improper Credential Usage",
     "severity": "HIGH"
   },
   "inicis_credential": {
-    "patterns": [
-      "(?i)(inicis_?key|INIStdPay|iniKey)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
-    ],
-    "cwe": "CWE-798",
-    "owasp": "M1: Improper Credential Usage",
-    "severity": "HIGH"
-  },
-  "nice_credential": {
-    "patterns": [
-      "(?i)(nice_?site_?code|niceSiteCode|nice_?key)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
-    ],
-    "cwe": "CWE-798",
-    "owasp": "M1: Improper Credential Usage",
-    "severity": "HIGH"
-  },
+  "patterns": [
+    "(?i)(inicis_?key|INIStdPay|iniKey)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
+    "(?i)(signKey|sign_?key)\\s*[=:\"']+\\s*[\"'][^\"']{8,}[\"']",
+    "(?i)(mid|merchant_?id)\\s*=\\s*[\"']INI[a-zA-Z0-9]{4,}[\"']",
+    "(?i)INIAPI_?(?:KEY|IV)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
+  ],
+  "cwe": "CWE-798",
+  "owasp": "M1: Improper Credential Usage",
+  "severity": "HIGH"
+},
+"nice_credential": {
+  "patterns": [
+    "(?i)(nice_?site_?code|niceSiteCode|nice_?key)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
+    "(?i)merchantKey\\s*=\\s*[\"'][^\"']{20,}[\"']",
+    "(?i)merchantID\\s*=\\s*[\"']nicepay[a-zA-Z0-9]{2,}[\"']",
+    "(?i)(clientId|clientSecret|siteCode)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
+  ],
+  "cwe": "CWE-798",
+  "owasp": "M1: Improper Credential Usage",
+  "severity": "HIGH"
+},
   "firebase_config_exposed": {
     "patterns": [
       "https://[a-zA-Z0-9\\-]+\\.firebaseio\\.com",
