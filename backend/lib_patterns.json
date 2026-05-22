@@ -135,7 +135,10 @@
     {"prefix": "Ltimber/log/",                "anchor": "Ltimber/log/Timber;",                             "group": "com.jakewharton.timber",        "artifact": "timber"},
     {"prefix": "Lcom/blankj/utilcode/",       "anchor": "Lcom/blankj/utilcode/util/Utils;",                "group": "com.blankj",                    "artifact": "utilcode"},
     {"prefix": "Lcom/facebook/soloader/",     "anchor": "Lcom/facebook/soloader/SoLoader;",                "group": "com.facebook.soloader",         "artifact": "soloader"},
-    {"prefix": "Lcom/permissionx/guolindev/", "anchor": "Lcom/permissionx/guolindev/PermissionX;",         "group": "com.guolindev.permissionx",     "artifact": "permissionx"}
+    {"prefix": "Lcom/permissionx/guolindev/", "anchor": "Lcom/permissionx/guolindev/PermissionX;",         "group": "com.guolindev.permissionx",     "artifact": "permissionx"},
+    {"prefix": "Lokio/",                      "anchor": "Lokio/GzipSource;",                               "group": "com.squareup.okio",             "artifact": "okio"},
+    {"prefix": "Lcom/fasterxml/jackson/",     "anchor": "Lcom/fasterxml/jackson/databind/ObjectMapper;",   "group": "com.fasterxml.jackson.core",    "artifact": "jackson-databind"},
+    {"prefix": "Lorg/bouncycastle/",          "anchor": "Lorg/bouncycastle/jce/provider/BouncyCastleProvider;", "group": "org.bouncycastle",         "artifact": "bcprov-jdk15on"}
   ],
 
   "metainf_extra_paths": [
