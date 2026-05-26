@@ -161,7 +161,9 @@ function processData(data: AnalysisDetail, osvData: OsvData | null): DashData {
   const mediumCnt = data.risk_medium ?? own.filter(r => (r.risk || '').toUpperCase() === 'MEDIUM').length
   const lowCnt    = data.risk_low    ?? own.filter(r => ['LOW','INFO'].includes((r.risk||'').toUpperCase())).length
   const tpCnt     = libs.length || all.filter(r => r.is_third_party).length
-  const score     = data.risk_score  ?? Math.min(100, highCnt * 10 + mediumCnt * 5 + lowCnt)
+  const cveCount  = (osv.findings  || []).length
+  const warnCount = (osv.warnings  || []).length
+  const score     = data.risk_score  ?? Math.round(100 * (1 - Math.pow(0.955, highCnt) * Math.pow(0.985, mediumCnt) * Math.pow(0.998, lowCnt + warnCount) * Math.pow(0.28, cveCount)))
 
   // TOP 5 vulnerability types
   const catMap: Record<string, number> = {}
@@ -190,9 +192,6 @@ function processData(data: AnalysisDetail, osvData: OsvData | null): DashData {
       idx,
     }
   })
-
-  const cveCount  = (osv.findings  || []).length
-  const warnCount = (osv.warnings  || []).length
 
   const summary: SummaryRow[] = [
     { icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',  label: '패키지명',    val: data.package_name || '-', isPackage: true },

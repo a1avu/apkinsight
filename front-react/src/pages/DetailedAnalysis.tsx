@@ -105,14 +105,13 @@ function scoreMeta(score: number) {
   return { label: '낮은 위험', desc: '정기 점검 권장', color: '#16a34a', track: '#dcfce7', grad: 'linear-gradient(90deg,#16a34a,#22c55e)' }
 }
 
-function getRiskSnapshot(listEntry: ListEntry | null, vulns: VulnItem[], findings: OsvFinding[]) {
+function getRiskSnapshot(listEntry: ListEntry | null, vulns: VulnItem[], findings: OsvFinding[], warnings: OsvWarning[]) {
   const high = Number(listEntry?.risk_high ?? vulns.filter(v => v.risk === 'HIGH').length)
   const medium = Number(listEntry?.risk_medium ?? vulns.filter(v => v.risk === 'MEDIUM').length)
   const low = Number(listEntry?.risk_low ?? vulns.filter(v => v.risk === 'LOW').length)
-  const fallback = Math.min(100, high * 10 + medium * 5 + low + findings.reduce((s, f) => {
-    const sev = String(f?.severity || '').toUpperCase()
-    return s + (sev === 'CRITICAL' || sev === 'HIGH' ? 8 : 3)
-  }, 0))
+  const cve = findings.length
+  const warn = warnings.length
+  const fallback = Math.round(100 * (1 - Math.pow(0.955, high) * Math.pow(0.985, medium) * Math.pow(0.998, low + warn) * Math.pow(0.28, cve)))
   return { score: Number(listEntry?.risk_score ?? fallback), high, medium, low }
 }
 
@@ -270,7 +269,7 @@ export default function DetailedAnalysis() {
   }, [])
 
   /* ── Derived ── */
-  const risk = getRiskSnapshot(listEntry, data.vulns, data.osv_findings)
+  const risk = getRiskSnapshot(listEntry, data.vulns, data.osv_findings, data.osv_warnings)
   const meta = scoreMeta(risk.score)
 
   const filteredVulns = data.vulns.filter(v =>
