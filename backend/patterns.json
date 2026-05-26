@@ -114,27 +114,27 @@
     "severity": "HIGH"
   },
   "inicis_credential": {
-  "patterns": [
-    "(?i)(inicis_?key|INIStdPay|iniKey)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
-    "(?i)(signKey|sign_?key)\\s*[=:\"']+\\s*[\"'][^\"']{8,}[\"']",
-    "(?i)(mid|merchant_?id)\\s*=\\s*[\"']INI[a-zA-Z0-9]{4,}[\"']",
-    "(?i)INIAPI_?(?:KEY|IV)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
-  ],
-  "cwe": "CWE-798",
-  "owasp": "M1: Improper Credential Usage",
-  "severity": "HIGH"
-},
-"nice_credential": {
-  "patterns": [
-    "(?i)(nice_?site_?code|niceSiteCode|nice_?key)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
-    "(?i)merchantKey\\s*=\\s*[\"'][^\"']{20,}[\"']",
-    "(?i)merchantID\\s*=\\s*[\"']nicepay[a-zA-Z0-9]{2,}[\"']",
-    "(?i)(clientId|clientSecret|siteCode)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
-  ],
-  "cwe": "CWE-798",
-  "owasp": "M1: Improper Credential Usage",
-  "severity": "HIGH"
-},
+    "patterns": [
+      "(?i)(inicis_?key|INIStdPay|iniKey)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
+      "(?i)(signKey|sign_?key)\\s*[=:\"']+\\s*[\"'][^\"']{8,}[\"']",
+      "(?i)(mid|merchant_?id)\\s*=\\s*[\"']INI[a-zA-Z0-9]{4,}[\"']",
+      "(?i)INIAPI_?(?:KEY|IV)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
+  "nice_credential": {
+    "patterns": [
+      "(?i)(nice_?site_?code|niceSiteCode|nice_?key)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
+      "(?i)merchantKey\\s*=\\s*[\"'][^\"']{20,}[\"']",
+      "(?i)merchantID\\s*=\\s*[\"']nicepay[a-zA-Z0-9]{2,}[\"']",
+      "(?i)(clientId|clientSecret|siteCode)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "HIGH"
+  },
   "firebase_config_exposed": {
     "patterns": [
       "https://[a-zA-Z0-9\\-]+\\.firebaseio\\.com",
@@ -248,7 +248,7 @@
     "patterns": [
       "[a|A][p|P][i|I][_]?[k|K][e|E][y|Y].*[\"'][0-9a-zA-Z]{32,45}[\"']",
       "[s|S][e|E][c|C][r|R][e|E][t|T].*[\"'][0-9a-zA-Z]{32,45}[\"']",
-      "basic\\s[a-zA-Z0-9_\\-:\\.=]+",
+      "basic\\s(?!0x)[a-zA-Z0-9_\\-:\\.=]{20,}",
       "bearer\\s[a-zA-Z0-9_\\-:\\.=]+",
       "(?<=://)[a-zA-Z0-9]+:[a-zA-Z0-9]+@[a-zA-Z0-9]+\\.[a-zA-Z]+"
     ],
@@ -342,20 +342,19 @@
       "(?i)Log\\.[dveiw]\\(.*credit",
       "(?i)Log\\.[dveiw]\\(.*ssn",
       "(?i)Log\\.[dveiw]\\(.*jumin",
-      "(?i)System\\.out\\.print.*password",
-      "(?i)printStackTrace\\(\\)"
+      "(?i)System\\.out\\.print.*password"
     ],
     "cwe": "CWE-532",
     "owasp": "M9: Insecure Data Storage",
     "severity": "MEDIUM"
   },
   "debug_stacktrace": {
-      "patterns": [
-        "(?i)printStackTrace\\(\\)"
-      ],
-      "cwe": "CWE-532",
-      "owasp": "M9: Insecure Data Storage",
-      "severity": "LOW"
+    "patterns": [
+      "(?i)printStackTrace\\(\\)"
+    ],
+    "cwe": "CWE-532",
+    "owasp": "M9: Insecure Data Storage",
+    "severity": "LOW"
   },
   "korean_phone_hardcoded": {
     "patterns": [
