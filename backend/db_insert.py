@@ -45,15 +45,11 @@ def safe_str(v):
 # =========================
 def calc_risk_score(results_to_send: dict, osv_data: dict) -> tuple[int, int, int, int]:
     """
-    LLM 결과(HIGH/MEDIUM/LOW)와 CVE findings 개수를 종합해 위험 점수를 산출합니다.
+    LLM/SAST 결과(HIGH/MEDIUM/LOW), 버전 미확인 경고, CVE findings 개수를
+    지수 감쇠 방식으로 종합해 위험 점수를 산출합니다.
 
-    산출 기준:
-      Score_LOW    = min(C_LOW    × 0.5, 10)
-      Score_MEDIUM = min(C_MEDIUM × 5,   40)
-      Score_HIGH   = 0                          (C_HIGH = 0)
-                   = min(40 + (C_HIGH-1) × 10, 100)  (C_HIGH ≥ 1)
-      Score_CVE    = min(C_CVE × 50, 100)
-      Score_TOTAL  = min(Score_LOW + Score_MEDIUM + Score_HIGH + Score_CVE, 100)
+    공식:
+      Risk = 100 × (1 - 0.955^HIGH × 0.985^MEDIUM × 0.998^(LOW+WARNING) × 0.28^CVE)
 
     Returns: (risk_score, high_cnt, medium_cnt, low_cnt)
     """
@@ -62,10 +58,14 @@ def calc_risk_score(results_to_send: dict, osv_data: dict) -> tuple[int, int, in
     for group_name, result_list in results_to_send.items():
         if not isinstance(result_list, list):
             continue
+
         for r in result_list:
             if not isinstance(r, dict):
                 continue
-            risk = str(r.get("risk", "")).upper()
+
+            # 기존 risk 필드가 비어 있는 경우 severity를 사용
+            risk = str(r.get("risk") or r.get("severity") or "").upper()
+
             if risk == "HIGH":
                 high_cnt += 1
             elif risk == "MEDIUM":
@@ -73,16 +73,32 @@ def calc_risk_score(results_to_send: dict, osv_data: dict) -> tuple[int, int, in
             elif risk == "LOW":
                 low_cnt += 1
 
-    score_low    = min(low_cnt    * 0.5, 10)
-    score_medium = min(medium_cnt * 5,   40)
-    score_high   = 0 if high_cnt == 0 else min(40 + (high_cnt - 1) * 10, 100)
+    cve_cnt = 0
+    warn_cnt = 0
 
-    cve_cnt  = len(osv_data.get("findings", [])) if osv_data else 0
-    score_cve = min(cve_cnt * 50, 100)
+    if isinstance(osv_data, dict):
+        findings = osv_data.get("findings", [])
+        warnings = osv_data.get("warnings", [])
 
-    total = int(min(score_low + score_medium + score_high + score_cve, 100))
-    return total, high_cnt, medium_cnt, low_cnt
+        if isinstance(findings, list):
+            cve_cnt = len(findings)
 
+        if isinstance(warnings, list):
+            warn_cnt = len(warnings)
+
+    risk_score = int(
+        100 * (
+            1
+            - (0.955 ** high_cnt)
+            * (0.985 ** medium_cnt)
+            * (0.998 ** (low_cnt + warn_cnt))
+            * (0.28 ** cve_cnt)
+        )
+    )
+
+    risk_score = max(0, min(risk_score, 100))
+
+    return risk_score, high_cnt, medium_cnt, low_cnt
 
 # =========================
 # 메인 insert 함수
