@@ -465,9 +465,15 @@ def generate_report(analysis_id: int):
     osv_payload = db_result if db_result else {"libs": [], "osv": {"findings": [], "warnings": []}}
 
     buf = build_pdf(detail, osv_payload)
+    from urllib.parse import quote
     safe_name = detail.get("apk_name", "report").replace(" ", "_")
+    ascii_fallback = safe_name.encode("ascii", "ignore").decode() or "report"
+    disposition = (
+        f'attachment; filename="{ascii_fallback}_report.pdf"; '
+        f"filename*=UTF-8''{quote(safe_name)}_report.pdf"
+    )
     return StreamingResponse(buf, media_type="application/pdf", headers={
-        "Content-Disposition": f"attachment; filename={safe_name}_report.pdf"
+        "Content-Disposition": disposition
     })
 
 # 03.24 ++)이제 localhost:8000 에 들어가면 해당 서비스 이용 가능
