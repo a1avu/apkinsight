@@ -12,7 +12,10 @@
   "hardcoded_api_key": {
     "patterns": [
       "(?i)(api_?key|apikey|api_?secret|access_?key|secret_?key)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
-      "(?i)(token|auth_?token|bearer)\\s*=\\s*[\"'][^\"']{8,}[\"']"
+      "(?i)(token|auth_?token|bearer)\\s*=\\s*[\"'][^\"']{8,}[\"']",
+      "<string\\s+name=[\"'][^\"']*client_secret[^\"']*[\"'][^>]*>[a-zA-Z0-9]{8,}</string>",
+      "<string\\s+name=[\"'][^\"']*api_key[^\"']*[\"'][^>]*>[a-zA-Z0-9]{16,}</string>",
+      "<string\\s+name=[\"'][^\"']*secret_key[^\"']*[\"'][^>]*>[a-zA-Z0-9]{16,}</string>"
     ],
     "cwe": "CWE-798",
     "owasp": "M1: Improper Credential Usage",
@@ -52,7 +55,11 @@
       "\"type\": \"service_account\"",
       "ya29\\.[0-9A-Za-z\\-_]+",
       "(?i)(google_?api_?key|googleApiKey)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']",
-      "(?i)(google_?client_?id|googleClientId)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']"
+      "(?i)(google_?client_?id|googleClientId)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']",
+      "<string\\s+name=[\"']google_api_key[\"'][^>]*>AIza[0-9A-Za-z\\-_]{35}</string>",
+      "<string\\s+name=[\"']google_maps_key[\"'][^>]*>AIza[0-9A-Za-z\\-_]{35}</string>",
+      "<string\\s+name=[\"']google_crash_reporting_api_key[\"'][^>]*>AIza[0-9A-Za-z\\-_]{35}</string>",
+      "<string\\s+name=[\"']default_web_client_id[\"'][^>]*>[0-9]+-[0-9A-Za-z_]{32}\\.apps\\.googleusercontent\\.com</string>"
     ],
     "cwe": "CWE-798",
     "owasp": "M1: Improper Credential Usage",
@@ -86,7 +93,9 @@
       "(?i)(kakao_?api_?key|kakao_?app_?key|kakaoAppKey)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']",
       "(?i)KakaoSdk\\.init[^(]*\\([^,]+,\\s*[\"'][^\"']{8,}[\"']",
       "(?i)<string\\s+name=[\"'][^\"']*kakao[^\"']*[\"'][^>]*>[a-zA-Z0-9]{10,}</string>",
-      "android:scheme=[\"']kakao[a-zA-Z0-9]{10,}[\"']"
+      "android:scheme=[\"']kakao[a-zA-Z0-9]{10,}[\"']",
+      "<string\\s+name=[\"']kakao_app_key[\"'][^>]*>[a-zA-Z0-9]{10,}</string>",
+      "<string\\s+name=[\"']kakao_scheme[\"'][^>]*>kakao[a-zA-Z0-9]{10,}</string>"
     ],
     "cwe": "CWE-798",
     "owasp": "M1: Improper Credential Usage",
@@ -95,7 +104,11 @@
   "naver_api_key": {
     "patterns": [
       "(?i)(naver_?client_?id|naver_?client_?secret|naverClientId)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
-      "(?i)[\"']X-Naver-Client-(?:Id|Secret)[\"']\\s*,\\s*[\"'][^\"']{8,}[\"']"
+      "(?i)[\"']X-Naver-Client-(?:Id|Secret)[\"']\\s*,\\s*[\"'][^\"']{8,}[\"']",
+      "<string\\s+name=[\"']naver_client_id[\"'][^>]*>[a-zA-Z0-9_]{8,}</string>",
+      "<string\\s+name=[\"']naver_client_secret[\"'][^>]*>[a-zA-Z0-9_]{8,}</string>",
+      "<string\\s+name=[\"']naver_client_secret_dev[\"'][^>]*>[a-zA-Z0-9_]{8,}</string>",
+      "<string\\s+name=[\"']naver_map_sdk_client_id[\"'][^>]*>[a-zA-Z0-9_]{8,}</string>"
     ],
     "cwe": "CWE-798",
     "owasp": "M1: Improper Credential Usage",
@@ -139,7 +152,10 @@
     "patterns": [
       "https://[a-zA-Z0-9\\-]+\\.firebaseio\\.com",
       "https://[a-zA-Z0-9\\-]+\\.firebaseapp\\.com",
-      "(?i)(firebaseApiKey|firebase_api_key)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']"
+      "(?i)(firebaseApiKey|firebase_api_key)\\s*[=:]\\s*[\"'][^\"']{10,}[\"']",
+      "<string\\s+name=[\"']firebase_database_url[\"'][^>]*>https://[a-zA-Z0-9\\-]+\\.firebaseio\\.com</string>",
+      "<string\\s+name=[\"']gcm_defaultSenderId[\"'][^>]*>[0-9]{10,}</string>",
+      "<string\\s+name=[\"']google_storage_bucket[\"'][^>]*>[a-zA-Z0-9\\-]+\\.appspot\\.com</string>"
     ],
     "cwe": "CWE-200",
     "owasp": "M1: Improper Credential Usage",
@@ -176,7 +192,9 @@
       "EAACEdEose0cBA[0-9A-Za-z]+",
       "[f|F][a|A][c|C][e|E][b|B][o|O][o|O][k|K](.{0,20})?[\"'][0-9]{13,17}",
       "[f|F][a|A][c|C][e|E][b|B][o|O][o|O][k|K].*[\"'][0-9a-f]{32}[\"']",
-      "([f|F][a|A][c|C][e|E][b|B][o|O][o|O][k|K]|[f|F][b|B])(.{0,20})?[\"'][0-9a-f]{32}"
+      "([f|F][a|A][c|C][e|E][b|B][o|O][o|O][k|K]|[f|F][b|B])(.{0,20})?[\"'][0-9a-f]{32}",
+      "<string\\s+name=[\"']facebook_app_id[\"'][^>]*>[0-9]{10,}</string>",
+      "<string\\s+name=[\"']facebook_client_token[\"'][^>]*>[0-9a-f]{32}</string>"
     ],
     "cwe": "CWE-798",
     "owasp": "M1: Improper Credential Usage",
@@ -588,5 +606,46 @@
     "cwe": "CWE-200",
     "owasp": "M8: Security Misconfiguration",
     "severity": "LOW"
+  },
+  "amplitude_api_key": {
+    "patterns": [
+      "<string\\s+name=[\"']amplitude_api_key[\"'][^>]*>[a-zA-Z0-9]{32}</string>",
+      "<string\\s+name=[\"']amplitude_api_key_dev[\"'][^>]*>[a-zA-Z0-9]{32}</string>",
+      "(?i)(amplitude_?api_?key|amplitudeApiKey)\\s*[=:]\\s*[\"'][a-zA-Z0-9]{32}[\"']",
+      "(?i)Amplitude\\.getInstance\\(\\)\\.initialize\\([^,]+,\\s*[\"'][a-zA-Z0-9]{32}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "MEDIUM"
+  },
+  "channel_io_key": {
+    "patterns": [
+      "<string\\s+name=[\"']channel_io_plugin_key[\"'][^>]*>[a-zA-Z0-9\\-]{8,}</string>",
+      "(?i)(channel_?io_?plugin_?key|channelPluginKey)\\s*[=:]\\s*[\"'][a-zA-Z0-9\\-]{8,}[\"']",
+      "(?i)ChannelIO\\.boot\\(.*pluginKey.*[\"'][^\"']{8,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "MEDIUM"
+  },
+  "sendbird_key": {
+    "patterns": [
+      "<string\\s+name=[\"']sendbird_app_id[\"'][^>]*>[a-zA-Z0-9\\-]{8,}</string>",
+      "(?i)(sendbird_?app_?id|sendbirdAppId)\\s*[=:]\\s*[\"'][a-zA-Z0-9\\-]{8,}[\"']",
+      "(?i)SendBird\\.init\\([\"'][^\"']{8,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "MEDIUM"
+  },
+  "appsflyer_key": {
+    "patterns": [
+      "<string\\s+name=[\"']appsflyer_dev_key[\"'][^>]*>[a-zA-Z0-9\\-_]{8,}</string>",
+      "(?i)(appsflyer_?dev_?key|appsflyerDevKey|apps_?flyer_?token)\\s*[=:]\\s*[\"'][^\"']{8,}[\"']",
+      "(?i)AppsFlyerLib\\.getInstance\\(\\)\\.init\\([\"'][^\"']{8,}[\"']"
+    ],
+    "cwe": "CWE-798",
+    "owasp": "M1: Improper Credential Usage",
+    "severity": "MEDIUM"
   }
 }
