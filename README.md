@@ -31,6 +31,22 @@ Android APK 파일을 업로드하면 보안 취약점을 자동으로 분석하
 
 - Docker
 - Docker Compose
+- Git
+
+### 최신 코드 받기
+
+처음 클론하거나 업데이트된 코드를 받을 때:
+
+```bash
+# 처음 클론
+git clone https://github.com/a1avu/apkinsight.git
+cd apkinsight
+
+# 이미 클론한 경우 최신 코드로 업데이트
+git pull origin main
+```
+
+코드를 pull한 후에는 반드시 `--build` 옵션으로 다시 빌드하세요.
 
 ### 시작
 
