@@ -1,187 +1,144 @@
-# APKInsight — 7주차 변경사항
+# APKInsight
 
-그냥 꿀팁인데 vscode extension에서 Markdown Preview Github Styling 이거 설치하고 md파일 우클릭해서 preview로 열면 md 파일을 아주 이쁘게 볼 수 있답니다   (사실 걍 노션에 복붙하면 되긴 함)
+Android APK 파일을 업로드하면 보안 취약점을 자동으로 분석하고 리포트를 생성해주는 웹 서비스입니다.
 
-## 사용법
-그냥
-~~~
-docker compose up --build
-~~~
-하십쇼
+## 주요 기능
 
-## 신규 파일
+- **APK 디컴파일** — JADX로 소스코드 추출, 패키지명 기반 써드파티 필터링
+- **라이브러리 버전 탐지** — META-INF, DEX, `.so`, pom.properties 등 다중 경로 파싱
+- **CVE 조회** — OSV.dev Batch API로 탐지된 라이브러리의 취약점 자동 조회 및 한국어 번역
+- **정적 분석** — mobsfscan + 커스텀 패턴(patterns.json) 기반 코드 스캔
+- **AI 분석** — Gemini API 또는 자체 Ollama 서버를 통한 취약점 분석 및 수정 방안 제시
+- **위험 점수 산출** — 심각도(High/Medium/Low) 및 CVE 기반 점수 계산
+- **PDF 보고서 생성** — 분석 결과를 한국어 PDF로 다운로드
+- **분석 이력 관리** — PostgreSQL 기반 분석 결과 저장/조회/삭제
 
-| 파일 | 설명 |
+## 기술 스택
+
+| 구분 | 기술 |
 |------|------|
-| `lib_version_detect.py` | APK 내부 파일을 직접 파싱하여 써드파티 라이브러리 버전 탐지 |
-| `osv_lookup.py` | OSV.dev API 기반 CVE 조회 + 한국어 번역 |
-| `lib_patterns.json` | 탐지 룰셋 (Maven 좌표, DEX 패턴, META-INF 경로 등) |
+| 프론트엔드 | React + TypeScript + shadcn/ui + Vite |
+| 백엔드 | FastAPI + Python 3.12 |
+| DB | PostgreSQL 17 |
+| 정적 분석 | JADX 1.5.4, mobsfscan 0.4.5 |
+| CVE 조회 | OSV.dev API |
+| AI 분석 | Google Gemini API / Ollama |
+| 컨테이너 | Docker (멀티스테이지 빌드) |
 
-### 사용법
+## 실행 방법
+
+### 요구사항
+
+- Docker
+- Docker Compose
+
+### 시작
+
 ```bash
-# 1단계: APK에서 라이브러리/버전 추출
-python lib_version_detect.py target.apk libs.json
-
-# 2단계: OSV.dev CVE 조회
-python osv_lookup.py libs.json osv_findings.json
+docker compose up --build
 ```
 
----
+빌드 완료 후 브라우저에서 `http://localhost:8000` 접속
 
-## lib_version_detect.py
+### 종료
 
-APK 내부 아래 파일들을 순서대로 파싱하여 라이브러리명 + 버전을 추출합니다.
-
-| 탐지 대상 | 방법 |
-|-----------|------|
-| `META-INF/*.version` | AndroidX/kotlinx 계열 버전 파일 직접 파싱 |
-| `*.properties` | `groupId` / `artifactId` / `version` 키 추출 (pom.properties 포함) |
-| `lib/*.so` 파일명 | 파일명 regex로 버전 추출 (arm64-v8a 우선) |
-| `kotlin-tooling-metadata.json` | Kotlin 버전 및 AGP 버전 추출 |
-| `assets/` 설정파일 | `.json` / `.properties` / `.txt` 내 버전 패턴 매칭 |
-| `.so` 바이너리 strings | ASCII 문자열에서 `X version Y.Y.Y` 패턴 추출 |
-| `classes*.dex` | DEX 문자열 풀 — UA 패턴(`okhttp/4.9.0`)과 클래스 존재 탐지(`Lretrofit2/Retrofit;`) |
-| `META-INF/` 추가 경로 | Maven `pom.properties` 누락 보강 |
-
-버전을 못 뽑은 라이브러리는 `version: null` 상태로 등록되고 `osv_lookup.py`의 `run_osv_scan_unknown()`이 처리합니다.
-
-모든 탐지 규칙은 `lib_patterns.json`에서 로드합니다. 새 라이브러리 추가 시 코드 수정 없이 JSON만 편집하면 됩니다.
-
----
-
-## osv_lookup.py
-
-| 변경 내용 | 설명 |
-|-----------|------|
-| `run_osv_scan()` | 버전 확인된 라이브러리 대상 OSV.dev 정확한 CVE 조회 |
-| `run_osv_scan_unknown()` | 버전 미확인 라이브러리 대상 패키지 단위 CVE 경고 조회 |
-| `translate_ko()` | `deep-translator`로 CVE summary 한국어 번역 |
-| `summary_ko` 필드 | findings에 추가 — 한국어 번역 요약 |
-| `summaries_ko` 필드 | warnings에 추가 — 대표 CVE 최대 3개 한국어 요약 |
-
-`deep-translator` 미설치 시 원문 영어 그대로 반환합니다 (예외 처리됨).
-
----
-
-## analyze.py
-
-### 파이프라인 변경 (5단계 → 7단계)
-
-| 단계 | 내용 | 출력 |
-|------|------|------|
-| 1단계 | JADX 디컴파일 | `jadx_out/` |
-| **2단계 (신규)** | `lib_version_detect` — 라이브러리 버전 탐지 | `_libs.json` |
-| **3단계 (신규)** | `osv_lookup` — OSV CVE 조회 | `_osv.json` |
-| 4단계 | mobsfscan 정적 분석 | `_mobsfscan.json` |
-| 5단계 | grep_custom.py 패턴 매칭 | `_custom.json` |
-| 6단계 | merge.py 결과 통합 | `_merge.json` |
-| 7단계 | Ollama / Gemini API 분석 | `_llm.json` |
-
-### 추가된 import
-```python
-from lib_version_detect import detect_libs_from_apk
-from osv_lookup import run_osv_scan, run_osv_scan_unknown
+```bash
+docker compose down
 ```
 
-### DELETE /analysis/{analysis_id} 수정
-- **변경 전**: DB 레코드만 삭제, `output/` 파일 잔존
-- **변경 후**: DB에서 `apk_name` 조회 → DB 삭제 → `output/<apk_name>/` 폴더 `shutil.rmtree()`로 삭제
-- 프론트에서 별도 파라미터 없이 `DELETE /analysis/{id}`만 보내면 됨 (shadcn 교체 후에도 동일)
+분석 결과(DB 데이터)를 함께 삭제하려면:
 
-### GET /analysis/{id}/osv 신규 추가
-- 사이드바 조회 시 라이브러리/CVE 카드 데이터 제공용 임시 엔드포인트
-- `analysis_id` → DB에서 `apk_name` 조회 → `_libs.json`, `_osv.json` 파일 읽어서 반환
-- **나중에 DB에 osv/libs 테이블 추가되면 이 엔드포인트 대체 예정**
-
-### latest_result에 libs/osv 추가
-```python
-payload = {
-    "apk_name": apk_name,
-    "data": results_to_send,
-    "libs": ...,  # 신규
-    "osv":  ...,  # 신규
-}
+```bash
+docker compose down -v
+rm -rf db_data
 ```
 
----
+## 사용 방법
 
-## Dockerfile
+1. **APK 업로드** — 메인 페이지에서 분석할 `.apk` 파일을 업로드
+2. **LLM 선택** — Gemini 또는 Ollama 중 하나를 선택하고 API 키 입력
+3. **분석 진행** — 7단계 파이프라인이 순서대로 실행되며 진행 상황 표시
+4. **결과 확인** — 분석 완료 후 취약점 목록, 라이브러리/CVE, 위험 점수 확인
+5. **PDF 다운로드** — 상세 분석 페이지에서 보고서 다운로드
 
-```dockerfile
-# 신규 COPY
-COPY lib_version_detect.py .
-COPY osv_lookup.py .
-COPY lib_patterns.json .
+## 분석 파이프라인
 
-# pip install에 추가
-sqlalchemy       # db_delete.py 의존성 누락 수정
-deep-translator  # CVE summary 한국어 번역
+| 단계 | 내용 | 출력 파일 |
+|------|------|-----------|
+| 1/7 | JADX 디컴파일 | `jadx_out/` |
+| 2/7 | 라이브러리 버전 탐지 | `{apk_name}_libs.json` |
+| 3/7 | OSV CVE 조회 | `{apk_name}_osv.json` |
+| 4/7 | mobsfscan 정적 분석 | `{apk_name}_mobsfscan.json` |
+| 5/7 | 커스텀 패턴 매칭 | `{apk_name}_custom.json` |
+| 6/7 | 결과 병합 | `{apk_name}_merge.json` |
+| 7/7 | AI 분석 | `{apk_name}_llm.json` |
+
+분석 결과는 `output/{apk_name}/` 폴더와 PostgreSQL DB에 저장됩니다.
+
+## 디렉터리 구조
+
+```
+.
+├── backend/                  # FastAPI 백엔드
+│   ├── analyze.py            # 메인 서버 + 분석 파이프라인
+│   ├── lib_version_detect.py # 라이브러리 버전 탐지
+│   ├── osv_lookup.py         # OSV CVE 조회
+│   ├── merge.py              # 분석 결과 병합
+│   ├── grep_custom.py        # 커스텀 패턴 스캔
+│   ├── gemini_api.py         # Gemini AI 분석
+│   ├── ollama_client.py      # Ollama AI 분석
+│   ├── pdf_report.py         # PDF 보고서 생성
+│   ├── manifest_analyzer.py  # AndroidManifest 분석
+│   ├── patterns.json         # 커스텀 보안 패턴 룰셋
+│   ├── lib_patterns.json     # 라이브러리 탐지 룰셋
+│   ├── init_db.py            # DB 테이블 초기화
+│   ├── db_insert.py          # DB 저장
+│   ├── db_select.py          # DB 조회
+│   └── db_delete.py          # DB 삭제
+├── front-react/              # React 프론트엔드
+│   └── src/
+│       └── pages/
+│           ├── UploadScan.tsx      # APK 업로드 페이지
+│           ├── Dashboard.tsx       # 대시보드
+│           ├── RecentScans.tsx     # 분석 이력 목록
+│           └── DetailedAnalysis.tsx # 상세 분석 결과
+├── input/                    # APK 임시 업로드 경로 (볼륨 마운트)
+├── output/                   # 분석 결과 저장 경로 (볼륨 마운트)
+├── Dockerfile                # 멀티스테이지 빌드 (React + Python)
+└── compose.yaml              # Docker Compose 설정
 ```
 
----
+## API 엔드포인트
 
-## temp_front.html
+| Method | Path | 설명 |
+|--------|------|------|
+| `POST` | `/analyze` | APK 파일 업로드 및 분석 시작 |
+| `GET` | `/status` | 현재 분석 진행 상태 조회 |
+| `GET` | `/result` | 최신 분석 결과 조회 (1회성) |
+| `GET` | `/analysis/list` | 전체 분석 이력 목록 |
+| `GET` | `/analysis/{id}` | 특정 분석 상세 결과 |
+| `GET` | `/analysis/{id}/osv` | 특정 분석의 라이브러리/CVE 정보 |
+| `GET` | `/report/{id}` | PDF 보고서 다운로드 |
+| `DELETE` | `/analysis/{id}` | 분석 결과 삭제 (DB + 파일) |
 
-### 04 — 라이브러리 / CVE 카드 추가
-탭 4개로 구성:
+## 룰셋 커스터마이징
 
-| 탭 | 내용 |
-|----|------|
-| 전체 | 탐지된 전체 라이브러리 목록 (버전, 타입, 소스) |
-| 버전 확인 | 버전이 확인된 라이브러리 |
-| CVE 발견 | CVE 존재 라이브러리 — **한국어 번역 요약(`summary_ko`) 포함** |
-| 버전 미확인 경고 | 버전 불명이지만 패키지 단위 CVE 존재 — **한국어 요약(`summaries_ko`) 포함** |
+### 보안 패턴 추가 (`backend/patterns.json`)
 
-### 기타 변경
-- 기존 `써드파티 결과` 섹션 제거 (LLM이 써드파티 코드 미분석)
-- `fetchResult()` — 분석 완료 후 `renderLibs(data.libs, data.osv)` 호출 추가
-- `viewAnalysis()` — DB 조회 시 `/analysis/{id}/osv` 호출 후 `renderLibs()` 호출 추가
-- `statusTextMap`에 `queing_lib_detect`, `queing_osv` 상태 추가
+커스텀 grep 스캔에 사용되는 보안 패턴을 정의합니다. 코드 수정 없이 JSON 편집만으로 새 패턴을 추가할 수 있습니다.
 
----
+### 라이브러리 탐지 패턴 추가 (`backend/lib_patterns.json`)
 
-## 8주차 수행 계획
+Maven 좌표, DEX 클래스 패턴, META-INF 경로 등 라이브러리 탐지 규칙을 정의합니다. 새 라이브러리 추가 시 코드 수정 없이 JSON만 편집하면 됩니다.
 
-- 써드파티 관련 JSON 파일(libs.json, osv.json) DB 테이블 설계 및 저장/조회/삭제 파이프라인 구현
-- shadcn UI 기반 정식 프론트엔드 연동 후 위험 점수, 진행도 기능 추가
+## 환경 변수
 
-## apkinsight_v2 변경사항
+`compose.yaml`에서 아래 값을 변경할 수 있습니다.
 
-### 1. 스캔 로그 누락 수정
-- `[4/7]`, `[5/7]` 단계 로그가 출력되지 않던 문제 수정
-  - `analyze.py` 수정
-
-### 2. 기능 추가
-- `clean_apk` 추가
-
-### 3. 다크 모드 업데이트
-- Android 플랫폼 배지 다크 모드 색상 적용
-- 취약점 유형 TOP 5 차트 배경 및 축선 색상 다크 모드 적용
-- 써드파티 분석 요약 아이콘(CVE 확인 / 버전 미확인 / 취약점 없음) 다크 모드 색상 적용
-- 수정 방안 박스 다크 모드 색상 적용
-- 다크 모드 전환 시 로고 이미지 자동 교체 (`apkinsight.png` ↔ `apkinsight_dark.png`)
-  - `dark-mode.css` 수정
-  - `dark-mode.js` 수정
-
-
----
-
-- 상세 분석 -> cve 발견 항목 -> 심각도 출력 이상하게 나옴
-	(CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N)  
-	-> cvss 라이브러리 사용으로 해결
-- pdf 위험점수 반영 안됨, 위험도(하이/미디움/로우) 각각 갯수 못 셈 -> 해결 왠지 모르겠는데 되네 ...??  -> 0
-- 백엔드 파일 한데 묶기 -> 0
-
-- shadcn ui로 프론트 변경
-
-- 상단 검색창 제거
-
-- pdf 보고서 생성 양식 변경 
-  -> (전체 수정방안 보여주기, cve항목 먼저 보여주기(가독성을 위해))
-
-- 서드파티 분석에 source에 아무것도 추가가 안되던 거 수정 
-  -> META-INF/com.google.android.gms_play-services-basement.version
-  -> classes.dex
-  -> kotlin-tooling-metadata.json
-  -> pom.properties 경로 등
-
+| 변수 | 기본값 | 설명 |
+|------|--------|------|
+| `DB_HOST` | `db` | PostgreSQL 호스트 |
+| `DB_PORT` | `5432` | PostgreSQL 포트 |
+| `DB_NAME` | `apkinsight` | DB 이름 |
+| `DB_USER` | `apkinsight` | DB 사용자 |
+| `DB_PASSWORD` | `apkinsight123` | DB 비밀번호 |
