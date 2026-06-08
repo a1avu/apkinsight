@@ -8,7 +8,7 @@ Android APK 파일을 업로드하면 보안 취약점을 자동으로 분석하
 - **라이브러리 버전 탐지** — META-INF, DEX, `.so`, pom.properties 등 다중 경로 파싱
 - **CVE 조회** — OSV.dev Batch API로 탐지된 라이브러리의 취약점 자동 조회 및 한국어 번역
 - **정적 분석** — mobsfscan + 커스텀 패턴(patterns.json) 기반 코드 스캔
-- **AI 분석** — Gemini API 또는 자체 Ollama 서버를 통한 취약점 분석 및 수정 방안 제시
+- **AI 분석** — Gemini API(비동기 병렬 배치) 또는 자체 Ollama 서버를 통한 취약점 분석 및 수정 방안 제시
 - **위험 점수 산출** — 심각도(High/Medium/Low) 및 CVE 기반 점수 계산
 - **PDF 보고서 생성** — 분석 결과를 한국어 PDF로 다운로드
 - **분석 이력 관리** — PostgreSQL 기반 분석 결과 저장/조회/삭제
@@ -22,7 +22,7 @@ Android APK 파일을 업로드하면 보안 취약점을 자동으로 분석하
 | DB | PostgreSQL 17 |
 | 정적 분석 | JADX 1.5.4, mobsfscan 0.4.5 |
 | CVE 조회 | OSV.dev API |
-| AI 분석 | Google Gemini API / Ollama |
+| AI 분석 | Google Gemini API (asyncio 비동기 병렬 처리) / Ollama |
 | 컨테이너 | Docker (멀티스테이지 빌드) |
 
 ## 실행 방법
@@ -87,7 +87,7 @@ rm -rf db_data
 | 4/7 | mobsfscan 정적 분석 | `{apk_name}_mobsfscan.json` |
 | 5/7 | 커스텀 패턴 매칭 | `{apk_name}_custom.json` |
 | 6/7 | 결과 병합 | `{apk_name}_merge.json` |
-| 7/7 | AI 분석 | `{apk_name}_llm.json` |
+| 7/7 | AI 분석 (비동기 병렬 배치, 최대 3회 재시도) | `{apk_name}_llm.json` |
 
 분석 결과는 `output/{apk_name}/` 폴더와 PostgreSQL DB에 저장됩니다.
 

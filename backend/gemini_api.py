@@ -1,15 +1,18 @@
+import asyncio
 import json
+import math
 import os
-import sys
 import random
+import sys
 from google import genai
 
 GEMINI_MODEL = "gemini-2.5-flash"
 BATCH_SIZE   = 20  # Gemini는 컨텍스트 크니까 20개씩
 
 
-def call_gemini_batch(client, batch, batch_num, total_batches):
-    prompt = f"""You are a mobile application security analyst. Below is a static analysis result of an Android APK.
+async def call_gemini_batch_async(client, batch, batch_num, total_batches, semaphore):
+    async with semaphore:
+        prompt = f"""You are a mobile application security analyst. Below is a static analysis result of an Android APK.
 All findings are from the application's own code (third-party libraries have already been excluded).
 
 For each finding, determine:
@@ -39,36 +42,43 @@ Format:
 Findings:
 {json.dumps(batch, ensure_ascii=False)}"""
 
-    print(f"[배치 {batch_num}/{total_batches}] 요청 중...", flush=True)
+        print(f"[배치 {batch_num}/{total_batches}] 요청 중...", flush=True)
 
-    response = client.models.generate_content(
-        model=GEMINI_MODEL,
-        contents=prompt,
-    )
+        for attempt in range(1, 4):
+            try:
+                response = await client.aio.models.generate_content(
+                    model=GEMINI_MODEL,
+                    contents=prompt,
+                )
 
-    raw = response.text.strip()
-    if "```" in raw:
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-    raw = raw.strip()
+                raw = response.text.strip()
+                if "```" in raw:
+                    raw = raw.split("```")[1]
+                    if raw.startswith("json"):
+                        raw = raw[4:]
+                raw = raw.strip()
 
-    result = json.loads(raw)
+                result = json.loads(raw)
 
-    if len(result) != len(batch):
-        raise ValueError(f"길이 불일치: 입력 {len(batch)}개 vs 출력 {len(result)}개")
+                if len(result) != len(batch):
+                    raise ValueError(f"길이 불일치: 입력 {len(batch)}개 vs 출력 {len(result)}개")
 
-    # _idx 검증
-    input_idxs = {item["_idx"] for item in batch}
-    output_idxs = {item.get("_idx") for item in result}
-    if input_idxs != output_idxs:
-        raise ValueError(f"_idx 불일치: 입력 {input_idxs} vs 출력 {output_idxs}")
+                input_idxs = {item["_idx"] for item in batch}
+                output_idxs = {item.get("_idx") for item in result}
+                if input_idxs != output_idxs:
+                    raise ValueError(f"_idx 불일치")
 
-    print(f"[배치 {batch_num}/{total_batches}] 완료 ({len(result)}개)")
-    return result
+                print(f"[배치 {batch_num}/{total_batches}] 완료 ({len(result)}개)")
+                return result
+
+            except Exception as e:
+                print(f"[배치 {batch_num}] 오류 (시도 {attempt}/3): {e}")
+                if attempt == 3:
+                    raise
+                await asyncio.sleep(2)
 
 
-def ask_gemini(findings, apk_name, output_dir, api_key):
+async def ask_gemini_async(findings, apk_name, output_dir, api_key):
     print(f"\n[LLM] Gemini {GEMINI_MODEL}에 분석 요청 중... ({len(findings)}개 findings)")
 
     client = genai.Client(api_key=api_key)
@@ -77,27 +87,28 @@ def ask_gemini(findings, apk_name, output_dir, api_key):
     random.shuffle(indexed)
     shuffled_findings = [f for _, f in indexed]
 
-    import math
-    total_batches = math.ceil(len(shuffled_findings) / BATCH_SIZE)
+    batches = [
+        shuffled_findings[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
+        for i in range(math.ceil(len(shuffled_findings) / BATCH_SIZE))
+    ]
+    total_batches = len(batches)
+
+    semaphore = asyncio.Semaphore(10)  # Tier 1이니까 10 동시
+
+    tasks = [
+        call_gemini_batch_async(client, batch, i + 1, total_batches, semaphore)
+        for i, batch in enumerate(batches)
+    ]
 
     idx_to_result = {}
+    results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    for i in range(total_batches):
-        batch_findings = shuffled_findings[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
-
-        max_retries = 3
-        for attempt in range(1, max_retries + 1):
-            try:
-                result = call_gemini_batch(client, batch_findings, i + 1, total_batches)
-                for llm_res in result:
-                    idx_to_result[llm_res["_idx"]] = llm_res
-                break
-            except Exception as e:
-                print(f"[배치 {i+1}/{total_batches}] 오류 (시도 {attempt}/{max_retries}): {e}")
-                if attempt == max_retries:
-                    print(f"[배치 {i+1}/{total_batches}] 최대 재시도 초과 — 분석 중단")
-                    sys.exit(1)
-                print(f"[배치 {i+1}/{total_batches}] 재시도 중...")
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            print(f"[배치 {i+1}] 최종 실패: {result}")
+            sys.exit(1)
+        for llm_res in result:
+            idx_to_result[llm_res["_idx"]] = llm_res
 
     merged = []
     for finding in findings:
@@ -127,6 +138,10 @@ def ask_gemini(findings, apk_name, output_dir, api_key):
     print(f"\n  HIGH: {len(high)}개 / MEDIUM: {len(medium)}개 / LOW: {len(low)}개")
 
     return merged
+
+
+def ask_gemini(findings, apk_name, output_dir, api_key):
+    return asyncio.run(ask_gemini_async(findings, apk_name, output_dir, api_key))
 
 
 def main(merge_json, api_key):
