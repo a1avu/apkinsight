@@ -201,6 +201,21 @@ false positive가 제거된 findings 배열을 반환합니다. 각 항목에 `r
 - `_idx` 필드로 배치 처리 후 원래 순서로 결과 재조합
 - false positive로 판단된 항목은 최종 결과에서 제거
 
+### 메인 앱과 연결하기
+
+`ollama_server.py`는 Docker 바깥에서 실행되는 별도 서버입니다. Docker 앱이 이 서버를 호출하려면 `backend/ollama_client.py`의 `SERVER_URL`을 실행 중인 서버 주소로 변경해야 합니다.
+
+```python
+# backend/ollama_client.py
+SERVER_URL = "http://<ollama-server-ip>:<port>/analyze"
+```
+
+변경 후 Docker 앱을 다시 빌드하세요:
+
+```bash
+docker compose up --build
+```
+
 ---
 
 ## API 엔드포인트
