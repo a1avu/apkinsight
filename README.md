@@ -120,9 +120,88 @@ rm -rf db_data
 │           └── DetailedAnalysis.tsx # 상세 분석 결과
 ├── input/                    # APK 임시 업로드 경로 (볼륨 마운트)
 ├── output/                   # 분석 결과 저장 경로 (볼륨 마운트)
+├── ollama_server.py          # Ollama 전용 분석 서버 (별도 실행)
 ├── Dockerfile                # 멀티스테이지 빌드 (React + Python)
 └── compose.yaml              # Docker Compose 설정
 ```
+
+## Ollama 서버 (`ollama_server.py`)
+
+로컬에 설치된 Ollama를 FastAPI로 감싸는 **별도 분석 서버**입니다. 메인 Docker 앱과 독립적으로 실행되며, 프론트엔드에서 LLM 선택 시 "Ollama"를 선택하면 이 서버가 호출됩니다.
+
+### 사전 요구사항
+
+- [Ollama](https://ollama.com) 설치 및 실행 중
+- 분석에 사용할 모델 다운로드:
+  ```bash
+  ollama pull qwen3.5:9b
+  ```
+- Python 패키지:
+  ```bash
+  pip install fastapi uvicorn requests json-repair
+  ```
+
+### 실행
+
+```bash
+uvicorn ollama_server:app --host 0.0.0.0 --port 8001
+```
+
+기본적으로 Ollama는 `http://localhost:11434`에서 실행 중이어야 합니다.
+
+### 인증
+
+모든 요청에 `x-api-key` 헤더가 필요합니다.
+
+허용된 API 키:
+
+| 키 |
+|----|
+| `01092298107` |
+| `01088842022` |
+| `01099638729` |
+| `01071811680` |
+
+### 엔드포인트
+
+| Method | Path | 설명 |
+|--------|------|------|
+| `POST` | `/analyze` | findings JSON 파일을 받아 LLM 분석 결과 반환 |
+| `GET` | `/health` | 서버 상태 및 로드된 모델 확인 |
+
+#### `POST /analyze` 요청 예시
+
+```bash
+curl -X POST http://localhost:8001/analyze \
+  -H "x-api-key: 01092298107" \
+  -F "file=@{apk_name}_final_custom.json"
+```
+
+#### `/analyze` 응답 형식
+
+false positive가 제거된 findings 배열을 반환합니다. 각 항목에 `risk`, `explanation`, `fix` 필드가 추가됩니다.
+
+```json
+[
+  {
+    "type": "hardcoded_secret",
+    "file_path": "com/example/Config.java",
+    "code": "String API_KEY = \"abc123\";",
+    "risk": "HIGH",
+    "explanation": "API 키가 소스코드에 하드코딩되어 있어 APK 역공학 시 노출됩니다.",
+    "fix": "서버에서 런타임에 수신하거나 환경 변수로 분리하세요. 예: `String key = BuildConfig.API_KEY;`"
+  }
+]
+```
+
+### 동작 방식
+
+- findings를 5개씩 배치로 나눠 순서를 섞은 뒤 Ollama에 순차 전송
+- 각 배치 최대 3회 재시도, 실패 시 모델을 언로드 후 재시도
+- `_idx` 필드로 배치 처리 후 원래 순서로 결과 재조합
+- false positive로 판단된 항목은 최종 결과에서 제거
+
+---
 
 ## API 엔드포인트
 
