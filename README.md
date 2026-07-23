@@ -4,6 +4,7 @@ Android APK 파일을 업로드하면 보안 취약점을 자동으로 분석하
 
 ## 주요 기능
 
+- **다중 APK 순차 분석** — 여러 APK를 한 번에 등록하면 한 파일씩 분석 → DB 저장 → 다음 파일 순으로 자동 반복
 - **APK 디컴파일** — JADX로 소스코드 추출, 패키지명 기반 써드파티 필터링
 - **라이브러리 버전 탐지** — META-INF, DEX, `.so`, pom.properties 등 다중 경로 파싱
 - **CVE 조회** — OSV.dev Batch API로 탐지된 라이브러리의 취약점 자동 조회 및 한국어 번역
@@ -71,10 +72,10 @@ rm -rf db_data
 
 ## 사용 방법
 
-1. **APK 업로드** — 메인 페이지에서 분석할 `.apk` 파일을 업로드
+1. **APK 업로드** — 메인 페이지에서 분석할 `.apk` 파일을 업로드 (드래그앤드롭/클릭으로 여러 개 동시 등록 가능)
 2. **LLM 선택** — Gemini 또는 Ollama 중 하나를 선택하고 API 키 입력
-3. **분석 진행** — 7단계 파이프라인이 순서대로 실행되며 진행 상황 표시
-4. **결과 확인** — 분석 완료 후 취약점 목록, 라이브러리/CVE, 위험 점수 확인
+3. **분석 진행** — 등록한 파일을 큐 순서대로 하나씩 분석하며, 7단계 파이프라인 진행 상황을 표시. 한 파일이 끝나 DB에 저장되면 자동으로 다음 파일로 넘어가 큐가 빌 때까지 반복
+4. **결과 확인** — 분석 완료 후 취약점 목록, 라이브러리/CVE, 위험 점수를 파일별로 확인
 5. **PDF 다운로드** — 상세 분석 페이지에서 보고서 다운로드
 
 ## 분석 파이프라인
@@ -203,11 +204,26 @@ false positive가 제거된 findings 배열을 반환합니다. 각 항목에 `r
 
 ### 메인 앱과 연결하기
 
-`ollama_server.py`는 Docker 바깥에서 실행되는 별도 서버입니다. Docker 앱이 이 서버를 호출하려면 `backend/ollama_client.py`의 `SERVER_URL`을 실행 중인 서버 주소로 변경해야 합니다.
+`ollama_server.py`는 Docker 바깥에서 실행되는 별도 서버입니다. Docker 앱이 이 서버를 호출하려면 **아래 두 곳 모두** 실행 중인 서버 주소로 변경해야 합니다. 실제 분석 요청(`ollama_client.py`)과 API 키 사전 검증(`analyze.py`)이 서로 다른 곳에 하드코딩되어 있어, 하나만 바꾸면 "API 키 검증 실패"가 계속 발생합니다.
 
 ```python
 # backend/ollama_client.py
 SERVER_URL = "http://<ollama-server-ip>:<port>/analyze"
+```
+
+```python
+# backend/analyze.py — validate_llm_connection()
+res = requests.get(
+    "http://<ollama-server-ip>:<port>/health",
+    ...
+)
+```
+
+`ollama_server.py`를 Docker 앱과 같은 macOS 호스트에서 실행 중이라면, 컨테이너 안에서는 `localhost`가 컨테이너 자신을 가리키므로 호스트 머신을 가리키는 `host.docker.internal`을 사용하세요:
+
+```python
+SERVER_URL = "http://host.docker.internal:8001/analyze"       # ollama_client.py
+"http://host.docker.internal:8001/health"                     # analyze.py
 ```
 
 변경 후 Docker 앱을 다시 빌드하세요:

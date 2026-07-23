@@ -3,7 +3,7 @@ import os
 import sys
 import requests
 
-SERVER_URL = "https://2171255capstone.iptime.org:8443/analyze"
+SERVER_URL = "http://host.docker.internal:8001/analyze"
 
 
 def main(merge_json, api_key):

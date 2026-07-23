@@ -223,7 +223,7 @@ def validate_llm_connection(llm_provider: str, api_key: str) -> bool:
     try:
         if llm_provider == "ollama":
             res = requests.get(
-                "https://2171255capstone.iptime.org:8443/health",
+                "http://host.docker.internal:8001/health",
                 headers={"x-api-key": api_key},
                 verify=False,
                 timeout=60
