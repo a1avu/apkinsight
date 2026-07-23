@@ -17,12 +17,27 @@ import {
 type ScanStatus = 'idle' | 'running' | 'done' | 'error'
 type StepState = 'pending' | 'active' | 'done'
 type LLMProvider = 'local' | 'gemini'
+type QueueItemStatus = 'pending' | 'running' | 'done' | 'error' | 'skipped'
 
 interface VulnCounts {
   critical: number
   high: number
   medium: number
   low: number
+}
+
+interface FileResult {
+  ownCount: number
+  thirdPartyCount: number
+  vulnCounts: VulnCounts
+}
+
+interface QueueItem {
+  id: string
+  file: File
+  status: QueueItemStatus
+  errorMessage?: string
+  result?: FileResult
 }
 
 interface LogEntry {
@@ -49,6 +64,11 @@ interface AnalysisListItem {
 interface OsvResponse {
   libs?: Array<unknown>
 }
+
+type PollOutcome =
+  | { kind: 'done' }
+  | { kind: 'error'; apiKeyError: boolean }
+  | { kind: 'cancelled' }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -104,8 +124,9 @@ export default function UploadScan() {
   const navigate = useNavigate()
   const isDark = useDarkMode()
 
-  // File
-  const [file, setFile] = useState<File | null>(null)
+  // File queue
+  const [queue, setQueue] = useState<QueueItem[]>([])
+  const [currentIndex, setCurrentIndex] = useState(-1)
   const [isDragOver, setIsDragOver] = useState(false)
   const [dropZoneError, setDropZoneError] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -122,18 +143,12 @@ export default function UploadScan() {
   const [showResult, setShowResult] = useState(false)
   const [showApiKeyErrorModal, setShowApiKeyErrorModal] = useState(false)
 
-  // Progress
+  // Progress (current queue item)
   const [steps, setSteps] = useState<StepState[]>(Array(5).fill('pending') as StepState[])
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [progress, setProgress] = useState(0)
   const [elapsed, setElapsed] = useState(0)
   const [isProgAnimating, setIsProgAnimating] = useState(false)
-
-  // Result
-  const [resultApkName, setResultApkName] = useState('')
-  const [ownCount, setOwnCount] = useState(0)
-  const [thirdPartyCount, setThirdPartyCount] = useState(0)
-  const [vulnCounts, setVulnCounts] = useState<VulnCounts>({ critical: 0, high: 0, medium: 0, low: 0 })
 
   // Stable refs
   const logRef        = useRef<HTMLDivElement>(null)
@@ -141,6 +156,8 @@ export default function UploadScan() {
   const elapsedTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const currentStepRef  = useRef(-1)
   const seenLogCountRef = useRef(0)
+  const cancelRequestedRef = useRef(false)
+  const abortReasonRef = useRef<'cancel' | 'apikey' | null>(null)
 
   // Auto-scroll terminal
   useEffect(() => {
@@ -166,7 +183,7 @@ export default function UploadScan() {
     if (elapsedTimerRef.current) { clearInterval(elapsedTimerRef.current); elapsedTimerRef.current = null }
   }, [])
 
-  const fetchResult = useCallback(async () => {
+  const fetchResultForItem = useCallback(async (idx: number) => {
     try {
       const data = await getResult() as ResultResponse
       if (!data.data) return
@@ -179,109 +196,38 @@ export default function UploadScan() {
         else if (r === 'MEDIUM')   counts.medium++
         else if (r === 'LOW')      counts.low++
       })
-      setVulnCounts(counts)
-      setOwnCount(Object.values(counts).reduce((a, b) => a + b, 0))
-      setShowResult(true)
+      const ownCount = Object.values(counts).reduce((a, b) => a + b, 0)
 
-      // Fetch third-party count from OSV
+      let thirdPartyCount = 0
       try {
         const list = await getAnalysisList() as AnalysisListItem[]
         if (list.length > 0) {
           const latestId = list[0].id
           sessionStorage.setItem('apkscan_latest_id', latestId)
           const osvData = await getAnalysisOsv(latestId) as OsvResponse
-          setThirdPartyCount((osvData.libs ?? []).length)
+          thirdPartyCount = (osvData.libs ?? []).length
         }
       } catch (_) { /* non-critical */ }
+
+      setQueue(prev => prev.map((q, i) => i === idx
+        ? { ...q, status: 'done', result: { ownCount, thirdPartyCount, vulnCounts: counts } }
+        : q))
+      setShowResult(true)
     } catch (e) {
       appendLog(`WARN  결과 조회 실패: ${e instanceof Error ? e.message : ''}`)
     }
   }, [appendLog])
 
-  // ─── File handlers ─────────────────────────────────────────────────────────
-
-  const handleFile = (f: File) => setFile(f)
-
-  const onDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragOver(true) }
-  const onDragLeave = () => setIsDragOver(false)
-  const onDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(false)
-    const f = e.dataTransfer.files[0]
-    if (f) handleFile(f)
-  }
-  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (f) handleFile(f)
-  }
-
-  // ─── LLM / API key handlers ────────────────────────────────────────────────
-
-  const onLLMChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLlmProvider(e.target.value as LLMProvider)
-    setApiKey('')
-    setApiKeyError(false)
-  }
-
-  const onApiKeyInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value
-    setApiKey(val)
-    if (llmProvider === 'gemini' && val.length > 0) {
-      setApiKeyError(!val.startsWith('AIzaSy'))
-    } else {
-      setApiKeyError(false)
-    }
-  }
-
-  // ─── Scan ──────────────────────────────────────────────────────────────────
-
-  const startScan = async () => {
-    if (!file) {
-      setDropZoneError(true)
-      setTimeout(() => setDropZoneError(false), 1500)
-      return
-    }
-    if (!apiKey.trim()) { setApiKeyError(true); return }
-    if (apiKeyError) return
-
-    // Reset
-    setVulnCounts({ critical: 0, high: 0, medium: 0, low: 0 })
-    setOwnCount(0)
-    setThirdPartyCount(0)
-    setLogs([])
-    setProgress(0)
-    setIsProgAnimating(true)
-    currentStepRef.current = -1
-    setSteps(Array(5).fill('pending') as StepState[])
-    setShowLog(true)
-    setShowResult(false)
-    setResultApkName(file.name)
-    setScanStatus('running')
-    setIsRunning(true)
-    setElapsed(0)
-
-    if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current)
-    elapsedTimerRef.current = setInterval(() => setElapsed(prev => prev + 1), 1000)
-
-    const provider = llmProvider === 'local' ? 'ollama' : 'gemini'
-
-    const onError = (msg: string) => {
-      appendLog(msg)
-      setScanStatus('error')
-      setIsRunning(false)
-      setIsProgAnimating(false)
-      stopTimers()
-    }
-
-    try {
-      appendLog('INFO  서버에 APK 업로드 중...')
-      const data = await analyzeFile(file, provider, apiKey) as { error?: string }
-      if (data.error) { onError(`WARN  ${data.error}`); return }
-      appendLog('OK    업로드 성공 — 분석 시작')
-
+  const pollUntilSettled = useCallback((): Promise<PollOutcome> => {
+    return new Promise(resolve => {
       seenLogCountRef.current = 0
       if (pollTimerRef.current) clearInterval(pollTimerRef.current)
       pollTimerRef.current = setInterval(async () => {
+        if (cancelRequestedRef.current) {
+          stopTimers()
+          resolve({ kind: 'cancelled' })
+          return
+        }
         try {
           const statusData = await getStatus() as StatusResponse
           const bs = statusData.status
@@ -312,33 +258,179 @@ export default function UploadScan() {
             stopTimers()
             setSteps(Array(5).fill('done') as StepState[])
             setProgress(100)
-            setIsProgAnimating(false)
-            setScanStatus('done')
-            setIsRunning(false)
             appendLog('OK    분석 완료!')
-            await fetchResult()
+            resolve({ kind: 'done' })
           } else if (bs === 'error') {
+            stopTimers()
             const isApiKeyError = log.some(l => l.includes('API 키 검증 실패'))
-            if (isApiKeyError) setShowApiKeyErrorModal(true)
-            onError(isApiKeyError ? 'WARN  API 키 검증 실패' : 'WARN  분석 중 오류 발생')
+            resolve({ kind: 'error', apiKeyError: isApiKeyError })
           } else if (bs === 'idle' && currentStepRef.current >= 0) {
-            onError('WARN  서버가 분석을 중단했습니다')
+            stopTimers()
+            resolve({ kind: 'error', apiKeyError: false })
           }
         } catch (e) {
           appendLog(`WARN  상태 조회 실패: ${e instanceof Error ? e.message : ''}`)
         }
       }, 1500)
-    } catch (e) {
-      onError(`WARN  서버 연결 실패: ${e instanceof Error ? e.message : ''}`)
+    })
+  }, [appendLog, stopTimers])
+
+  // ─── File handlers ─────────────────────────────────────────────────────────
+
+  const addFiles = (files: FileList | File[]) => {
+    if (isRunning) return
+    const list = Array.from(files).filter(f => /\.(apk|xapk)$/i.test(f.name))
+    if (list.length === 0) return
+    setQueue(prev => [...prev, ...list.map(f => ({
+      id: `${f.name}-${f.size}-${f.lastModified}-${crypto.randomUUID()}`,
+      file: f,
+      status: 'pending' as QueueItemStatus,
+    }))])
+  }
+
+  const removeFromQueue = (id: string) => {
+    setQueue(prev => prev.filter(q => q.id !== id || q.status !== 'pending'))
+  }
+
+  const onDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragOver(true) }
+  const onDragLeave = () => setIsDragOver(false)
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files)
+  }
+  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.length) addFiles(e.target.files)
+    e.target.value = ''
+  }
+
+  // ─── LLM / API key handlers ────────────────────────────────────────────────
+
+  const onLLMChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLlmProvider(e.target.value as LLMProvider)
+    setApiKey('')
+    setApiKeyError(false)
+  }
+
+  const onApiKeyInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    setApiKey(val)
+    if (llmProvider === 'gemini' && val.length > 0) {
+      setApiKeyError(!val.startsWith('AIzaSy'))
+    } else {
+      setApiKeyError(false)
     }
   }
 
-  const cancelScan = () => {
+  // ─── Scan ──────────────────────────────────────────────────────────────────
+
+  const startScan = async () => {
+    if (queue.length === 0) {
+      setDropZoneError(true)
+      setTimeout(() => setDropZoneError(false), 1500)
+      return
+    }
+    if (!apiKey.trim()) { setApiKeyError(true); return }
+    if (apiKeyError) return
+
+    cancelRequestedRef.current = false
+    abortReasonRef.current = null
+    setShowLog(true)
+    setShowResult(false)
+    setScanStatus('running')
+    setIsRunning(true)
+
+    const provider = llmProvider === 'local' ? 'ollama' : 'gemini'
+
+    for (let i = 0; i < queue.length; i++) {
+      if (cancelRequestedRef.current) break
+
+      setCurrentIndex(i)
+      const item = queue[i]
+      setQueue(prev => prev.map((q, idx) => idx === i ? { ...q, status: 'running' } : q))
+
+      // Reset per-file progress UI
+      setLogs([])
+      setProgress(0)
+      setIsProgAnimating(true)
+      currentStepRef.current = -1
+      setSteps(Array(5).fill('pending') as StepState[])
+      setElapsed(0)
+      if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current)
+      elapsedTimerRef.current = setInterval(() => setElapsed(prev => prev + 1), 1000)
+
+      appendLog(`INFO  [${i + 1}/${queue.length}] ${item.file.name} 업로드 중...`)
+
+      let uploadOk = true
+      try {
+        const data = await analyzeFile(item.file, provider, apiKey) as { error?: string }
+        if (data.error) {
+          appendLog(`WARN  ${data.error}`)
+          uploadOk = false
+        } else {
+          appendLog('OK    업로드 성공 — 분석 시작')
+        }
+      } catch (e) {
+        appendLog(`WARN  서버 연결 실패: ${e instanceof Error ? e.message : ''}`)
+        uploadOk = false
+      }
+
+      if (!uploadOk) {
+        setIsProgAnimating(false)
+        setQueue(prev => prev.map((q, idx) => idx === i ? { ...q, status: 'error', errorMessage: '업로드 실패' } : q))
+        setShowResult(true)
+        continue
+      }
+
+      const outcome = await pollUntilSettled()
+
+      if (outcome.kind === 'cancelled') {
+        setIsProgAnimating(false)
+        setQueue(prev => prev.map((q, idx) => idx === i ? { ...q, status: 'error', errorMessage: '취소됨' } : q))
+        setShowResult(true)
+        break
+      } else if (outcome.kind === 'done') {
+        setIsProgAnimating(false)
+        // Reading /result resets the backend's global status to "idle", which is
+        // required before the next file's /analyze call will be accepted.
+        await fetchResultForItem(i)
+      } else {
+        setIsProgAnimating(false)
+        appendLog(outcome.apiKeyError ? 'WARN  API 키 검증 실패' : 'WARN  분석 중 오류 발생')
+        setQueue(prev => prev.map((q, idx) => idx === i
+          ? { ...q, status: 'error', errorMessage: outcome.apiKeyError ? 'API 키 검증 실패' : '분석 중 오류 발생' }
+          : q))
+        setShowResult(true)
+        if (outcome.apiKeyError) {
+          setShowApiKeyErrorModal(true)
+          abortReasonRef.current = 'apikey'
+          cancelRequestedRef.current = true
+          break
+        }
+        // Non-API-key failure only affects this file — keep going.
+      }
+    }
+
+    setQueue(prev => prev.map(q => q.status === 'pending' ? { ...q, status: 'skipped' } : q))
     stopTimers()
-    setScanStatus('idle')
-    setIsRunning(false)
     setIsProgAnimating(false)
-    appendLog('WARN  사용자에 의해 취소됨')
+    setIsRunning(false)
+    setCurrentIndex(-1)
+    // Cast (not just annotate): cancelScan mutates this ref from a separate closure,
+    // which TS's control-flow narrowing for startScan can't see, so it infers this
+    // read as 'apikey' | null and would otherwise reject the 'cancel' comparison below.
+    const abortReason = abortReasonRef.current as 'cancel' | 'apikey' | null
+    setScanStatus(
+      abortReason === 'cancel' ? 'idle' :
+      abortReason === 'apikey' ? 'error' :
+      'done'
+    )
+  }
+
+  const cancelScan = () => {
+    cancelRequestedRef.current = true
+    abortReasonRef.current = 'cancel'
+    appendLog('WARN  사용자에 의해 취소됨 — 남은 파일은 처리되지 않습니다')
   }
 
   // ─── Derived UI values ─────────────────────────────────────────────────────
@@ -353,10 +445,13 @@ export default function UploadScan() {
   const dropZoneCls = cn(
     'border-2 border-dashed rounded-[10px] bg-[#f8fbff] transition-all cursor-pointer text-center px-5 py-10',
     'border-[#c7d9f0] hover:border-blue-400 hover:bg-blue-50',
-    file        && 'border-solid border-green-400 bg-green-50 hover:border-green-400 hover:bg-green-50',
+    queue.length > 0 && 'border-solid border-green-400 bg-green-50 hover:border-green-400 hover:bg-green-50',
     dropZoneError && 'border-red-400',
     isDragOver  && 'border-blue-400 bg-blue-50',
+    isRunning   && 'pointer-events-none opacity-70',
   )
+
+  const finishedItems = queue.filter(q => q.status === 'done' || q.status === 'error')
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
@@ -434,13 +529,13 @@ export default function UploadScan() {
           {/* Drop zone */}
           <div
             className={dropZoneCls}
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => { if (!isRunning) fileInputRef.current?.click() }}
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
           >
-            <input ref={fileInputRef} type="file" accept=".apk,.xapk" className="hidden" onChange={onFileSelect}/>
-            {!file ? (
+            <input ref={fileInputRef} type="file" accept=".apk,.xapk" multiple className="hidden" onChange={onFileSelect}/>
+            {queue.length === 0 ? (
               <div>
                 <div className="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3.5 border border-blue-100">
                   <svg width="26" height="26" fill="none" stroke="#3b82f6" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -448,7 +543,7 @@ export default function UploadScan() {
                   </svg>
                 </div>
                 <p className="text-[14px] font-semibold text-[#334155] mb-1">APK 파일을 드래그하거나 클릭하세요</p>
-                <p className="text-[12px] text-[#94a3b8]">지원 형식: .apk · .xapk &nbsp;·&nbsp; 최대 200 MB</p>
+                <p className="text-[12px] text-[#94a3b8]">여러 개 선택 가능 · 지원 형식: .apk · .xapk &nbsp;·&nbsp; 최대 200 MB</p>
               </div>
             ) : (
               <div>
@@ -457,12 +552,58 @@ export default function UploadScan() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                 </div>
-                <p className="text-[14px] font-semibold text-[#15803d] mb-[3px]">{file.name}</p>
-                <p className="text-[12px] text-[#4ade80]">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
-                <p className="text-[11px] text-[#94a3b8] mt-1.5">다른 파일로 변경하려면 클릭</p>
+                <p className="text-[14px] font-semibold text-[#15803d] mb-[3px]">{queue.length}개 파일 선택됨</p>
+                <p className="text-[11px] text-[#94a3b8] mt-1.5">클릭하거나 드롭하여 파일 추가</p>
               </div>
             )}
           </div>
+
+          {/* Queue list */}
+          {queue.length > 0 && (
+            <div className="mt-3 space-y-1.5 max-h-56 overflow-y-auto pr-1">
+              {queue.map((item, idx) => {
+                const s = item.status
+                return (
+                  <div
+                    key={item.id}
+                    className={cn(
+                      'flex items-center gap-2.5 px-3 py-2 rounded-[7px] border text-[12px]',
+                      s === 'running' ? 'border-blue-200 bg-blue-50'
+                      : s === 'done'   ? 'border-green-200 bg-green-50'
+                      : s === 'error'  ? 'border-red-200 bg-red-50'
+                      : s === 'skipped'? 'border-[#e2e8f0] bg-[#f8fafc] opacity-60'
+                                       : 'border-[#e2e8f0] bg-white',
+                    )}
+                  >
+                    <span
+                      className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
+                      style={{
+                        background: s === 'done' ? '#dcfce7' : s === 'error' ? '#fee2e2' : s === 'running' ? '#dbeafe' : '#f1f5f9',
+                        color:      s === 'done' ? '#16a34a' : s === 'error' ? '#dc2626' : s === 'running' ? '#1d4ed8' : '#94a3b8',
+                      }}
+                    >
+                      {s === 'running' ? (
+                        <span className="w-3 h-3 border-2 border-blue-200 border-t-blue-500 rounded-full animate-spin inline-block" />
+                      ) : s === 'done' ? '✓' : s === 'error' ? '!' : s === 'skipped' ? '–' : idx + 1}
+                    </span>
+                    <span className="flex-1 min-w-0 truncate font-medium text-[#334155]">{item.file.name}</span>
+                    <span className="text-[#94a3b8] flex-shrink-0">{(item.file.size / 1024 / 1024).toFixed(1)} MB</span>
+                    {item.errorMessage && (
+                      <span className="text-red-600 flex-shrink-0">{item.errorMessage}</span>
+                    )}
+                    {s === 'pending' && !isRunning && (
+                      <button
+                        className="text-[#94a3b8] hover:text-red-600 flex-shrink-0 px-1"
+                        onClick={(e) => { e.stopPropagation(); removeFromQueue(item.id) }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
 
           {/* LLM + API key row */}
           <div className="mt-4 flex gap-2.5 items-end flex-wrap">
@@ -525,7 +666,14 @@ export default function UploadScan() {
         {showLog && (
           <div className="bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,.07),0_4px_12px_rgba(0,0,0,.04)] border border-[#e8edf2] p-6 mb-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="flex items-center justify-between mb-3.5">
-              <div className="text-[11px] font-bold text-[#94a3b8] tracking-[.12em] uppercase">02 — 진행 로그</div>
+              <div className="text-[11px] font-bold text-[#94a3b8] tracking-[.12em] uppercase">
+                02 — 진행 로그
+                {isRunning && currentIndex >= 0 && queue[currentIndex] && (
+                  <span className="ml-2 normal-case font-semibold text-[#1d4ed8]">
+                    ({currentIndex + 1}/{queue.length}) {queue[currentIndex].file.name}
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-3">
                 <span className="text-[11px] text-[#94a3b8] tabular-nums">{formatElapsed(elapsed)}</span>
                 <button
@@ -624,50 +772,69 @@ export default function UploadScan() {
         {/* ── Card 03: 분석 결과 ── */}
         {showResult && (
           <div className="bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,.07),0_4px_12px_rgba(0,0,0,.04)] border border-[#e8edf2] p-6 mb-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="text-[11px] font-bold text-[#94a3b8] tracking-[.12em] uppercase pb-3.5 border-b border-[#f1f5f9] mb-[18px]">
-              03 — 분석 결과
+            <div className="flex items-center justify-between pb-3.5 border-b border-[#f1f5f9] mb-[18px]">
+              <div className="text-[11px] font-bold text-[#94a3b8] tracking-[.12em] uppercase">03 — 분석 결과</div>
+              <span className="text-[11px] text-[#94a3b8]">
+                {queue.filter(q => q.status === 'done').length}/{queue.length} 완료
+              </span>
             </div>
 
-            {/* APK name + own count */}
-            <div className="flex gap-2.5 flex-wrap mb-4">
-              <div className="flex-[2] bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] p-[11px] flex items-center gap-2.5 min-w-[160px]">
-                <svg width="14" height="14" fill="none" stroke="#3b82f6" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-                <span className="text-[12px] font-semibold text-[#334155] truncate">{resultApkName || '-'}</span>
-              </div>
-              <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] px-4 py-[11px] text-center">
-                <p className="text-[10px] text-[#94a3b8] font-semibold tracking-[.04em] mb-0.5">자체 코드</p>
-                <p className="text-[16px] font-extrabold text-[#334155]">{ownCount}건</p>
-              </div>
-            </div>
+            <div className="space-y-4">
+              {finishedItems.map(item => (
+                <div key={item.id} className="border border-[#e8edf2] rounded-[10px] p-4">
+                  {/* APK name + status */}
+                  <div className="flex gap-2.5 flex-wrap mb-3.5 items-center">
+                    <div className="flex-[2] bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] p-[11px] flex items-center gap-2.5 min-w-[160px]">
+                      <svg width="14" height="14" fill="none" stroke="#3b82f6" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                      </svg>
+                      <span className="text-[12px] font-semibold text-[#334155] truncate">{item.file.name}</span>
+                    </div>
+                    {item.status === 'error' ? (
+                      <div className="bg-red-50 border border-red-200 rounded-[8px] px-4 py-[11px] text-center">
+                        <p className="text-[12px] font-semibold text-red-600">{item.errorMessage ?? '분석 실패'}</p>
+                      </div>
+                    ) : (
+                      <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] px-4 py-[11px] text-center">
+                        <p className="text-[10px] text-[#94a3b8] font-semibold tracking-[.04em] mb-0.5">자체 코드</p>
+                        <p className="text-[16px] font-extrabold text-[#334155]">{item.result?.ownCount ?? 0}건</p>
+                      </div>
+                    )}
+                  </div>
 
-            {/* Third-party count */}
-            <div className="mb-3.5">
-              <div className="bg-blue-50 border border-blue-200 rounded-[8px] px-4 py-[9px] inline-flex items-center gap-2">
-                <span className="text-[12px] font-semibold text-[#1d4ed8]">써드파티 라이브러리</span>
-                <span className="text-[17px] font-extrabold text-[#1d4ed8]">{thirdPartyCount}</span>
-                <span className="text-[12px] text-blue-400">개</span>
-              </div>
-            </div>
+                  {item.result && (
+                    <>
+                      {/* Third-party count */}
+                      <div className="mb-3.5">
+                        <div className="bg-blue-50 border border-blue-200 rounded-[8px] px-4 py-[9px] inline-flex items-center gap-2">
+                          <span className="text-[12px] font-semibold text-[#1d4ed8]">써드파티 라이브러리</span>
+                          <span className="text-[17px] font-extrabold text-[#1d4ed8]">{item.result.thirdPartyCount}</span>
+                          <span className="text-[12px] text-blue-400">개</span>
+                        </div>
+                      </div>
 
-            {/* Severity boxes */}
-            <div>
-              <p className="text-[11px] font-semibold text-[#64748b] tracking-[.04em] mb-2.5">자체 코드 결과</p>
-              <div className="flex gap-2 flex-wrap">
-                <div className="flex-1 min-w-[68px] rounded-[8px] p-3 text-center bg-[#fff7ed] border border-[#fed7aa]">
-                  <p className="text-[22px] font-extrabold text-[#ea580c] leading-none">{vulnCounts.high}</p>
-                  <p className="text-[10px] text-[#fb923c] font-semibold mt-[3px] tracking-[.03em]">HIGH</p>
+                      {/* Severity boxes */}
+                      <div>
+                        <p className="text-[11px] font-semibold text-[#64748b] tracking-[.04em] mb-2.5">자체 코드 결과</p>
+                        <div className="flex gap-2 flex-wrap">
+                          <div className="flex-1 min-w-[68px] rounded-[8px] p-3 text-center bg-[#fff7ed] border border-[#fed7aa]">
+                            <p className="text-[22px] font-extrabold text-[#ea580c] leading-none">{item.result.vulnCounts.high}</p>
+                            <p className="text-[10px] text-[#fb923c] font-semibold mt-[3px] tracking-[.03em]">HIGH</p>
+                          </div>
+                          <div className="flex-1 min-w-[68px] rounded-[8px] p-3 text-center bg-[#fefce8] border border-[#fef08a]">
+                            <p className="text-[22px] font-extrabold text-[#ca8a04] leading-none">{item.result.vulnCounts.medium}</p>
+                            <p className="text-[10px] text-[#facc15] font-semibold mt-[3px] tracking-[.03em]">MEDIUM</p>
+                          </div>
+                          <div className="flex-1 min-w-[68px] rounded-[8px] p-3 text-center bg-[#f0fdf4] border border-[#bbf7d0]">
+                            <p className="text-[22px] font-extrabold text-[#16a34a] leading-none">{item.result.vulnCounts.low}</p>
+                            <p className="text-[10px] text-[#4ade80] font-semibold mt-[3px] tracking-[.03em]">LOW</p>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div className="flex-1 min-w-[68px] rounded-[8px] p-3 text-center bg-[#fefce8] border border-[#fef08a]">
-                  <p className="text-[22px] font-extrabold text-[#ca8a04] leading-none">{vulnCounts.medium}</p>
-                  <p className="text-[10px] text-[#facc15] font-semibold mt-[3px] tracking-[.03em]">MEDIUM</p>
-                </div>
-                <div className="flex-1 min-w-[68px] rounded-[8px] p-3 text-center bg-[#f0fdf4] border border-[#bbf7d0]">
-                  <p className="text-[22px] font-extrabold text-[#16a34a] leading-none">{vulnCounts.low}</p>
-                  <p className="text-[10px] text-[#4ade80] font-semibold mt-[3px] tracking-[.03em]">LOW</p>
-                </div>
-              </div>
+              ))}
             </div>
 
             {/* Dashboard link */}
