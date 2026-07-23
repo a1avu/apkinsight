@@ -5,6 +5,7 @@ import os
 import random
 import sys
 from google import genai
+from google.genai import types
 
 GEMINI_MODEL = "gemini-2.5-flash"
 BATCH_SIZE   = 20  # Gemini는 컨텍스트 크니까 20개씩
@@ -49,6 +50,9 @@ Findings:
                 response = await client.aio.models.generate_content(
                     model=GEMINI_MODEL,
                     contents=prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0,
+                    ),
                 )
 
                 raw = response.text.strip()
