@@ -219,7 +219,7 @@ res = requests.get(
 )
 ```
 
-`ollama_server.py`를 Docker 앱과 같은 macOS 호스트에서 실행 중이라면, 컨테이너 안에서는 `localhost`가 컨테이너 자신을 가리키므로 호스트 머신을 가리키는 `host.docker.internal`을 사용하세요:
+`ollama_server.py`는 Docker를 쓰지 않고 macOS 호스트에 직접 `uvicorn`으로 띄운 프로세스이고(로컬 Ollama 위에서 동작), 반대로 `analyze.py`(= `apkinsight-app`)는 Docker 컨테이너 안에서 실행됩니다. 컨테이너 입장에서 호스트 macOS는 "바깥" 시스템이므로, 컨테이너 안에서 `localhost`라고 쓰면 컨테이너 자기 자신을 가리켜 호스트에 떠 있는 `ollama_server.py`에 닿지 않습니다. 두 프로세스가 같은 macOS 머신에서 돈다면, Docker Desktop이 제공하는 특수 DNS 이름 `host.docker.internal`(컨테이너에서 호스트를 가리키는 이름)을 대신 사용하세요:
 
 ```python
 SERVER_URL = "http://host.docker.internal:8001/analyze"       # ollama_client.py
