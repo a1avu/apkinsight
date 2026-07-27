@@ -7,7 +7,7 @@ import sys
 from google import genai
 from google.genai import types
 
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.5-flash"  # gemini-2.5-flash는 2026-10-16 종료 예정, 신규 키는 이미 404
 BATCH_SIZE   = 20  # Gemini는 컨텍스트 크니까 20개씩
 
 

@@ -316,7 +316,8 @@ export default function UploadScan() {
     const val = e.target.value
     setApiKey(val)
     if (llmProvider === 'gemini' && val.length > 0) {
-      setApiKeyError(!val.startsWith('AIzaSy'))
+      // 기존 AIzaSy... 형식과 신규 AQ.Ab... (auth key) 형식을 모두 허용
+      setApiKeyError(!(val.startsWith('AIzaSy') || val.startsWith('AQ.')))
     } else {
       setApiKeyError(false)
     }
@@ -634,13 +635,13 @@ export default function UploadScan() {
                       ? 'border-red-400 ring-2 ring-red-100'
                       : 'border-[#d1dbe8] focus:border-blue-400 focus:ring-2 focus:ring-blue-100',
                   )}
-                  placeholder={llmProvider === 'gemini' ? 'AIzaSy...' : '서버 API 키를 입력하세요'}
+                  placeholder={llmProvider === 'gemini' ? 'AIzaSy... 또는 AQ....' : '서버 API 키를 입력하세요'}
                   value={apiKey}
                   onChange={onApiKeyInput}
                 />
               </div>
               {apiKeyError && (
-                <p className="text-[11px] text-red-600 mt-[3px]">AIzaSy 로 시작해야 합니다</p>
+                <p className="text-[11px] text-red-600 mt-[3px]">AIzaSy 또는 AQ. 로 시작해야 합니다</p>
               )}
             </div>
           </div>

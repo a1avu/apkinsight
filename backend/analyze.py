@@ -29,6 +29,8 @@ import shutil
 import requests
 import json
 import xml.etree.ElementTree as ET  # 매니페스트(XML) 파싱에 사용
+from google import genai as google_genai  # Gemini API 키 헬스체크용
+from gemini_api import GEMINI_MODEL
 #다른 포트에서 열린 프론트도 통신이 가능하게 해줍니다. 
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -230,14 +232,17 @@ def validate_llm_connection(llm_provider: str, api_key: str) -> bool:
             )
             return res.status_code == 200
         elif llm_provider == "gemini":
-            res = requests.post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-                headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-                json={"contents": [{"parts": [{"text": "hi"}]}]},
-                timeout=60
+            # 03.24 ++) 공식 SDK로 검증(raw REST + x-goog-api-key는 신규 AQ. 키에서
+            # 401 ACCESS_TOKEN_TYPE_UNSUPPORTED가 보고됨). 모델명은 gemini_api.py의
+            # GEMINI_MODEL을 그대로 써서 실제 분석과 어긋나지 않게 한다.
+            client = google_genai.Client(api_key=api_key)
+            client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents="hi",
             )
-            return res.status_code == 200
-    except Exception:
+            return True
+    except Exception as e:
+        print(f"[!] {llm_provider} 키 검증 실패: {e}")
         return False
     return False
 
